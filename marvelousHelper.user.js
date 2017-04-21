@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/marvelousHelper
 // @description Enhances Marvelousga giveaways
 // @author Citrinate
-// @version 1.0.1
+// @version 1.0.2
 // @match https://marvelousga.com/giveaway.php*
 // @connect steamcommunity.com
 // @grant GM_addStyle
@@ -88,6 +88,7 @@
 					} else {
 						// Create the button
 						var starting_label = active_groups.indexOf(group_name) == -1 ? "Join " + group_name : "Leave " + group_name,
+							starting_label_class = active_groups.indexOf(group_name) == -1 ? "btn-success " : "btn-danger",
 							button_id = button_base_id + button_count++,
 							group_id = null;
 
@@ -102,7 +103,7 @@
 							} else {
 								toggleGroupStatus(button_id, group_name, group_id);
 							}
-						});
+						}, starting_label_class);
 					}
 				}
 
@@ -121,7 +122,7 @@
 						joinSteamGroup(group_name, group_id, function(success) {
 							if(success) {
 								active_groups.push(group_name);
-								gleamHelperUI.setButtonLabel(button_id, "Leave " + group_name);
+								gleamHelperUI.setButtonLabel(button_id, "Leave " + group_name, "btn-danger", "btn-success");
 							} else {
 								gleamHelperUI.showError(steam_community_down_error);
 							}
@@ -132,7 +133,7 @@
 						leaveSteamGroup(group_name, group_id, function(success) {
 							if(success) {
 								active_groups.splice(active_groups.indexOf(group_name), 1);
-								gleamHelperUI.setButtonLabel(button_id, "Join " + group_name);
+								gleamHelperUI.setButtonLabel(button_id, "Join " + group_name, "btn-success", "btn-danger");
 							} else {
 								gleamHelperUI.showError(steam_community_down_error);
 							}
@@ -365,9 +366,11 @@
 			/**
 			 *
 			 */
-			addButton: function(button_id, label, click_function) {
+			addButton: function(button_id, label, click_function, button_class) {
+				button_class = (typeof button_class === "undefined") ? "" : button_class;
+
 				var new_button =
-						$("<a>", { class: "gh__button btn btn-embossed btn-info" }).append(
+						$("<a>", { class: "gh__button btn btn-embossed btn-info " + button_class }).append(
 							$("<span>", { text: label })).append(
 							$("<span>", { class: "fa ng-scope fa-refresh fa-spin", css: { display: "none" }})
 						).click(function(e) {
@@ -397,8 +400,16 @@
 			/**
 			 *
 			 */
-			setButtonLabel: function(button_id, label) {
+			setButtonLabel: function(button_id, label, add_class, remove_class) {
 				active_buttons[button_id].find("span").first().text(label);
+
+				if(add_class !== undefined) {
+					active_buttons[button_id].addClass(add_class);
+				}
+
+				if(remove_class !== undefined) {
+					active_buttons[button_id].removeClass(remove_class);
+				}
 			},
 
 			/**
