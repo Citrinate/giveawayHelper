@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/marvelousHelper
 // @description Enhances Marvelousga giveaways
 // @author Citrinate
-// @version 1.0
+// @version 1.0.1
 // @match https://marvelousga.com/giveaway.php*
 // @connect steamcommunity.com
 // @grant GM_addStyle
@@ -25,8 +25,12 @@
 		 * Search the page for Steam Groups and add Join/Leave buttons for them
 		 */
 		function findSteamGroups() {
-			$("body").find("a[href^='http://steamcommunity.com/groups/']").each(function() {
-				var group_name = $(this).attr("href").replace("http://steamcommunity.com/groups/", "").toLowerCase().replace(/[^a-z0-9\-]/g, "");
+			$("body").find("a[href*='steamcommunity.com/groups/']:not([href*='/detail/'])").each(function() {
+				var group_name = $(this).attr("href").replace("http://steamcommunity.com/groups/", "").replace("https://steamcommunity.com/groups/", "").toLowerCase();
+
+				if(group_name.indexOf("#") !== -1) {
+					group_name = group_name.substring(0, group_name.indexOf("#"));
+				}
 
 				loadSteamHandler.getInstance().handleEntry(group_name);
 			});
