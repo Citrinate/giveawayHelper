@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/marvelousHelper
 // @description Enhances Marvelousga giveaways
 // @author Citrinate
-// @version 1.0.2
+// @version 1.0.3
 // @match https://marvelousga.com/giveaway.php*
 // @connect steamcommunity.com
 // @grant GM_addStyle
@@ -88,7 +88,7 @@
 					} else {
 						// Create the button
 						var starting_label = active_groups.indexOf(group_name) == -1 ? "Join " + group_name : "Leave " + group_name,
-							starting_label_class = active_groups.indexOf(group_name) == -1 ? "btn-success " : "btn-danger",
+							starting_label_class = active_groups.indexOf(group_name) == -1 ? "#28b62c" : "#ff4136",
 							button_id = button_base_id + button_count++,
 							group_id = null;
 
@@ -122,7 +122,7 @@
 						joinSteamGroup(group_name, group_id, function(success) {
 							if(success) {
 								active_groups.push(group_name);
-								gleamHelperUI.setButtonLabel(button_id, "Leave " + group_name, "btn-danger", "btn-success");
+								gleamHelperUI.setButtonLabel(button_id, "Leave " + group_name, "#ff4136", "#28b62c");
 							} else {
 								gleamHelperUI.showError(steam_community_down_error);
 							}
@@ -133,7 +133,7 @@
 						leaveSteamGroup(group_name, group_id, function(success) {
 							if(success) {
 								active_groups.splice(active_groups.indexOf(group_name), 1);
-								gleamHelperUI.setButtonLabel(button_id, "Join " + group_name, "btn-success", "btn-danger");
+								gleamHelperUI.setButtonLabel(button_id, "Join " + group_name, "#28b62c", "#ff4136");
 							} else {
 								gleamHelperUI.showError(steam_community_down_error);
 							}
@@ -254,22 +254,40 @@
 		var active_errors = [],
 			active_notifications = {},
 			active_buttons = {},
-			group_box_container = $("<div>", { class: "gh__group_box panel-body" }),
-			gleam_helper_container = $("<div>", { class: "gh__main_container" });
+			gh_main_container = randomString(10),
+			gh_group_box = randomString(10),
+			gh_button = randomString(10),
+			gh_notification = randomString(10),
+			gh_error = randomString(10),
+			gh_quantity = randomString(10),
+			gh_close = randomString(10),
+			group_box_container = $("<div>", { class: gh_group_box + " panel-body" }),
+			gleam_helper_container = $("<div>", { class: gh_main_container });
 
 			GM_addStyle(
 				"html { overflow-y: scroll !important; }" +
-				".gh__main_container { font-size: 16.5px; left: 0px; position: fixed; text-align: center; top: 0px; width: 100%; z-index: 9999999999; }" +
-				".gh__button { border-bottom-width: 4px !important; margin: 8px !important; }" +
-				".gh__notification { background: #000; border-top: 1px solid rgba(52, 152, 219, .5); box-shadow: 0px 2px 10px rgba(0, 0, 0, .5); box-sizing: border-box; color: #3498db; line-height: 22px; padding: 12px; width: 100%; }" +
-				".gh__error { background: #e74c3c; border-top: 1px solid rgba(255, 255, 255, .5); box-shadow: 0px 2px 10px rgba(231, 76, 60, .5); box-sizing: border-box; color: #fff; line-height: 22px; padding: 12px; width: 100%; }" +
-				".gh__error a { color: #fff; }" +
-				".gh__quantity { font-style: italic; margin: 12px 0px 0px 0px; }" +
-				".gh__group_box { display: inline-block; font-size: 14px; line-height: 14px; position: relative; top: -4px; }" +
-				".gh__close { float: right; background: rgba(255, 255, 255, .15); border: 1px solid #fff; box-shadow: 0px 0px 8px rgba(255, 255, 255, .5); cursor: pointer; margin-left: 4px; padding: 0px 4px; }" +
-				".gh__close:hover { background: #fff; color: #e74c3c; }" +
-				".gh__close::before { content: 'x'; position: relative; top: -1px; }"
+				"." + gh_main_container + " { font-size: 16.5px; left: 0px; position: fixed; text-align: center; top: 0px; width: 100%; z-index: 9999999999; }" +
+				"." + gh_button + " { border-bottom-width: 4px !important; margin: 8px !important; }" +
+				"." + gh_notification + " { background: #000; border-top: 1px solid rgba(52, 152, 219, .5); box-shadow: 0px 2px 10px rgba(0, 0, 0, .5); box-sizing: border-box; color: #3498db; line-height: 22px; padding: 12px; width: 100%; }" +
+				"." + gh_error + " { background: #e74c3c; border-top: 1px solid rgba(255, 255, 255, .5); box-shadow: 0px 2px 10px rgba(231, 76, 60, .5); box-sizing: border-box; color: #fff; line-height: 22px; padding: 12px; width: 100%; }" +
+				"." + gh_error + " a { color: #fff; }" +
+				"." + gh_quantity + " { font-style: italic; margin: 12px 0px 0px 0px; }" +
+				"." + gh_group_box + " { display: inline-block; font-size: 14px; line-height: 14px; position: relative; top: -4px; }" +
+				"." + gh_close + " { float: right; background: rgba(255, 255, 255, .15); border: 1px solid #fff; box-shadow: 0px 0px 8px rgba(255, 255, 255, .5); cursor: pointer; margin-left: 4px; padding: 0px 4px; }" +
+				"." + gh_close + ":hover { background: #fff; color: #e74c3c; }" +
+				"." + gh_close + "::before { content: 'x'; position: relative; top: -1px; }"
 			);
+
+		/**
+		 * Generate a random alphanumeric string
+		 * http://stackoverflow.com/questions/10726909/random-alpha-numeric-string-in-javascript
+		 */
+		function randomString(length) {
+			var result = '';
+			var chars = '0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+			for (var i = length; i > 0; --i) result += chars[Math.floor(Math.random() * chars.length)];
+			return result;
+		}
 
 		/**
 		 * Push the page down to make room for notifications
@@ -311,8 +329,8 @@
 
 					active_errors.push(msg);
 					gleam_helper_container.append(
-						$("<div>", { class: "gh__error" }).html("<strong>Marvelous Helper Error</strong>: " + msg).prepend(
-							$("<div>", { class: "gh__close" }).click(function() {
+						$("<div>", { class: gh_error }).html("<strong>Marvelous Helper Error</strong>: " + msg).prepend(
+							$("<div>", { class: gh_close }).click(function() {
 								$(this).unbind("click");
 								$(this).parent().slideUp(400, function() {
 									active_errors.splice(active_errors.indexOf(msg), 1);
@@ -331,7 +349,7 @@
 			showNotification: function(notification_id, msg, hide_delay) {
 				if(!active_notifications[notification_id]) {
 					// New notification
-					active_notifications[notification_id] = $("<div>", { class: "gh__notification" });
+					active_notifications[notification_id] = $("<div>", { class: gh_notification });
 					gleam_helper_container.append(active_notifications[notification_id]);
 				}
 
@@ -366,11 +384,11 @@
 			/**
 			 *
 			 */
-			addButton: function(button_id, label, click_function, button_class) {
-				button_class = (typeof button_class === "undefined") ? "" : button_class;
+			addButton: function(button_id, label, click_function, color) {
+				color = (typeof color === "undefined") ? "#000" : color;
 
 				var new_button =
-						$("<a>", { class: "gh__button btn btn-embossed btn-info " + button_class }).append(
+						$("<a>", { class: gh_button + " btn" }).css("background-color", color).css("border-color", color).append(
 							$("<span>", { text: label })).append(
 							$("<span>", { class: "fa ng-scope fa-refresh fa-spin", css: { display: "none" }})
 						).click(function(e) {
@@ -400,15 +418,12 @@
 			/**
 			 *
 			 */
-			setButtonLabel: function(button_id, label, add_class, remove_class) {
+			setButtonLabel: function(button_id, label, color) {
 				active_buttons[button_id].find("span").first().text(label);
 
-				if(add_class !== undefined) {
-					active_buttons[button_id].addClass(add_class);
-				}
-
-				if(remove_class !== undefined) {
-					active_buttons[button_id].removeClass(remove_class);
+				if(color !== undefined) {
+					active_buttons[button_id].css("background-color", color);
+					active_buttons[button_id].css("border-color", color);
 				}
 			},
 
