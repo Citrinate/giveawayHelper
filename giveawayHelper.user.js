@@ -3,9 +3,10 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.0.0
+// @version 2.0.1
 // @match https://gleam.io/*
 // @match https://marvelousga.com/giveaway.php*
+// @match https://simplo.gg/index.php?giveaway=*
 // @match https://dev.twitter.com/
 // @match https://player.twitch.tv/
 // @connect steamcommunity.com
@@ -119,12 +120,12 @@
 		 */
 		function createTwitterButton(entry, entry_element) {
 			// Don't do anything for a tweet entry that's already been completed
-			/*if(isCompleted(entry)() &&
+			if(isCompleted(entry)() &&
 				(entry.entry_method.entry_type == "twitter_tweet" ||
 					entry.entry_method.entry_type == "twitter_hashtags")) {
 
 				return;
-			}*/
+			}
 
 			TwitterHandler.getInstance().handleEntry({
 					action: entry.entry_method.entry_type,
@@ -275,6 +276,81 @@
 								main_box
 							)
 						)
+					)
+				);
+
+				findSteamGroups();
+			},
+		};
+	})();
+
+	/**
+	 *
+	 */
+	var simploHelper = (function() {
+		var main_box = $("<div>");
+
+		/**
+		 * Search the page for Steam Groups and add Join/Leave buttons for them
+		 */
+		function findSteamGroups() {
+			$("body").find("a[href*='steamcommunity.com/groups/']").each(function() {
+				var group_name = $(this).attr("href").replace("http://steamcommunity.com/groups/", "").
+						replace("https://steamcommunity.com/groups/", "").toLowerCase();
+
+				SteamHandler.getInstance().handleEntry({ group_name: group_name }, addButton, true);
+			});
+		}
+
+		/**
+		 * Places the button onto the page
+		 */
+		function addButton(new_button) {
+			main_box.append(
+				$("<div>", { class: "col-md-12" }).append(
+					new_button
+				)
+			);
+		}
+
+		return {
+			/**
+			 *
+			 */
+			init: function() {
+				GM_addStyle(`
+					.${giveawayHelperUI.gh_main_container} {
+					}
+
+					.${giveawayHelperUI.gh_main_container}>div {
+						padding: 8px 16px;
+					}
+
+					.${giveawayHelperUI.gh_button} {
+						cursor: pointer;
+						padding: 8px;
+					}
+
+					.${giveawayHelperUI.gh_button_on} {
+						background-color: #28b62c;
+					}
+
+					.${giveawayHelperUI.gh_button_off} {
+						background-color: #ff4136;
+					}
+				`);
+
+				main_box.addClass(giveawayHelperUI.gh_main_container);
+
+				$($(".mod-desc")[0]).after(
+					$("<div>", { class: "log-in-sec", style: "height: auto;" }).append(
+						$("<div>", { class: "mod-desc-title" }).append(
+							$("<h3>").append(
+								"Giveaway Helper"
+							)
+						)
+					).append(
+						main_box
 					)
 				);
 
@@ -1298,6 +1374,9 @@
 	} else if(document.location.hostname == "marvelousga.com") {
 		giveawayHelperUI.loadUI();
 		marvelousHelper.init();
+	} else if(document.location.hostname == "simplo.gg") {
+		giveawayHelperUI.loadUI();
+		simploHelper.init();
 	} else {
 		commandHub.init();
 	}
