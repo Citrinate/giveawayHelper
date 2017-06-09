@@ -13,4 +13,4 @@ This script enhances a variety of Steam Key related giveaway sites by making cer
 2. Go [here](https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/giveawayHelper.user.js)
 3. Click "Install"
 
-By default, the script will auto-update every 24 hours. You can force an update by re-installing from the link above.
+By default, the script will auto-update every 24 hours.  If an update adds support for a new giveaway site, then you may see a notficiation asking for permission before the auto-update can complete.
