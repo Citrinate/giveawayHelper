@@ -1,10 +1,10 @@
 # Giveaway Helper
-This script enhances a number of Steam Key Giveaway Sites by making social media requirements easier to complete and undo ([preview](https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/images/marvelous.png)).
+This script enhances a number of Steam Key Giveaway Sites by making certain requirements easier to complete and undo.
 
 <table>
   <tr>
     <td rowspan="2"><br><br><strong>Site</strong></td>
-    <td colspan="3" align="center"><strong>Simplifies requirements</strong></td>
+    <td colspan="3" align="center"><strong>Simplifies requirements (<a href="https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/images/marvelous.png">preview</a>)</strong></td>
   </tr>
   <tr>
     <td align="center"><strong>Steam</strong></td>
