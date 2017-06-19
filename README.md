@@ -1,8 +1,8 @@
 # Giveaway Helper
-This script enhances a variety of Steam Key related giveaway sites by making certain requirements easier to complete.
+This script enhances a number of Steam Key giveaway sites by making certain requirements easier to complete.
 
 
-| Site(s)         | Enhancements  |
+| Sites           | Enhancements  |
 |:--------------- |:------------- |
 | Gleam.io        | Simplifies Steam, Twitter, and Twitch requirements ([preview](https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/images/gleam.png)) |
 | ChubbyKeys<br>GiftyBundle<br>Giveawayhopper<br>Marvelousga<br>Simplo.gg<br>Who's Gaming Now?! | Simplifies Steam requirements ([preview 1](https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/images/marvelous.png), [preview 2](https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/images/simplo.png))<br><br><br><br><br><br> |
