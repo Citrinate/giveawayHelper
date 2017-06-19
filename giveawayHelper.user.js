@@ -3,12 +3,16 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.0.1
-// @match https://gleam.io/*
-// @match https://marvelousga.com/giveaway.php*
-// @match https://simplo.gg/index.php?giveaway=*
-// @match https://dev.twitter.com/
-// @match https://player.twitch.tv/
+// @version 2.0.2
+// @match http*://gleam.io/*
+// @match http*://marvelousga.com/giveaway.php*
+// @match http*://simplo.gg/index.php?giveaway=*
+// @match http*://dev.twitter.com/
+// @match http*://player.twitch.tv/
+// @match http*://whosgamingnow.net/giveaway/*
+// @match http*://giftybundle.com/giveaway.php*
+// @match http*://www.chubbykeys.com/giveaway.php*
+// @match http*://giveawayhopper.com/giveaway.php*
 // @connect steamcommunity.com
 // @connect twitter.com
 // @connect twitch.tv
@@ -20,6 +24,7 @@
 // @updateURL https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/giveawayHelper.user.js
 // @downloadURL https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/giveawayHelper.user.js
 // @require https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js
+// @require https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js
 // @run-at document-end
 // ==/UserScript==
 
@@ -206,27 +211,12 @@
 	 *
 	 */
 	var marvelousHelper = (function() {
-		var main_box = $("<div>");
-
-		/**
-		 * Search the page for Steam Groups and add Join/Leave buttons for them
-		 */
-		function findSteamGroups() {
-			$("body").find("a[href*='steamcommunity.com/groups/']:not([href*='/detail/'])").each(function() {
-				var group_name = $(this).attr("href").replace("http://steamcommunity.com/groups/", "").
-						replace("https://steamcommunity.com/groups/", "").toLowerCase();
-
-				if(group_name.indexOf("#") !== -1) group_name = group_name.substring(0, group_name.indexOf("#"));
-
-				SteamHandler.getInstance().handleEntry({ group_name: group_name }, addButton, true);
-			});
-		}
 
 		/**
 		 * Places the button onto the page
 		 */
 		function addButton(new_button) {
-			main_box.append(
+			giveawayHelperUI.main_box.append(
 				$("<div>", { class: "col-md-12" }).append(
 					new_button
 				)
@@ -243,43 +233,40 @@
 						display: inline-block;
 						font-size: 14px;
 						line-height: 14px;
-						position: relative;
-						top: -4px;
 					}
 
 					.${giveawayHelperUI.gh_button} {
 						border-bottom-width: 4px !important;
 						margin: 8px !important;
+						color: #fff;
 					}
 
 					.${giveawayHelperUI.gh_button_on} {
-						background-color: #28b62c;
+						background-color: #ff4136;
 					}
 
 					.${giveawayHelperUI.gh_button_off} {
-						background-color: #ff4136;
+						background-color: #28b62c;
 					}
 				`);
 
-				main_box.addClass(giveawayHelperUI.gh_main_container);
-
-				$(".navbar").after(
+				$(".container:first").before(
 					$("<div>", { class: "container" }).append(
 						$("<div>", { class: "col-md-8 col-md-offset-2" }).append(
-							$("<div>", { class: "panel panel-danger" }).append(
+							$("<div>", { class: "panel panel-danger panel-2" }).append(
 								$("<div>", { class: "panel-heading" }).append(
 									$("<h3>", { class: "text-center panel-title" }).append(
 										"Giveaway Helper"
 									)
 								)
 							).append(
-								main_box
+								giveawayHelperUI.main_box
 							)
 						)
 					)
 				);
 
-				findSteamGroups();
+				SteamHandler.getInstance().findGroups(addButton, true, false);
 			},
 		};
 	})();
@@ -288,25 +275,12 @@
 	 *
 	 */
 	var simploHelper = (function() {
-		var main_box = $("<div>");
-
-		/**
-		 * Search the page for Steam Groups and add Join/Leave buttons for them
-		 */
-		function findSteamGroups() {
-			$("body").find("a[href*='steamcommunity.com/groups/']").each(function() {
-				var group_name = $(this).attr("href").replace("http://steamcommunity.com/groups/", "").
-						replace("https://steamcommunity.com/groups/", "").toLowerCase();
-
-				SteamHandler.getInstance().handleEntry({ group_name: group_name }, addButton, true);
-			});
-		}
 
 		/**
 		 * Places the button onto the page
 		 */
 		function addButton(new_button) {
-			main_box.append(
+			giveawayHelperUI.main_box.append(
 				$("<div>", { class: "col-md-12" }).append(
 					new_button
 				)
@@ -332,15 +306,13 @@
 					}
 
 					.${giveawayHelperUI.gh_button_on} {
-						background-color: #28b62c;
+						background-color: #ff4136;
 					}
 
 					.${giveawayHelperUI.gh_button_off} {
-						background-color: #ff4136;
+						background-color: #28b62c;
 					}
 				`);
-
-				main_box.addClass(giveawayHelperUI.gh_main_container);
 
 				$($(".mod-desc")[0]).after(
 					$("<div>", { class: "log-in-sec", style: "height: auto;" }).append(
@@ -350,11 +322,75 @@
 							)
 						)
 					).append(
-						main_box
+						giveawayHelperUI.main_box
 					)
 				);
 
-				findSteamGroups();
+				var cache_id = `simplo_${CryptoJS.MD5(document.location.pathname + document.location.search)}`;
+				SteamHandler.getInstance().findGroups(addButton, true, true, cache_id);
+			},
+		};
+	})();
+
+	/**
+	 *
+	 */
+	var wgnHelper = (function() {
+
+		/**
+		 * Places the button onto the page
+		 */
+		function addButton(new_button) {
+			giveawayHelperUI.main_box.append(new_button);
+		}
+
+		return {
+			/**
+			 *
+			 */
+			init: function() {
+				GM_addStyle(`
+					.${giveawayHelperUI.gh_main_container} {
+						max-width:600px;
+						margin:auto
+					}
+
+					.${giveawayHelperUI.gh_button} {
+						cursor: pointer;
+						display: block;
+						margin-top: 0px;
+						border: 1px solid #fff;
+						background-color: #171A21;
+						border-radius: 0px;
+						margin-bottom: 0px;
+						font-size: 18px;
+						color: #fff !important;
+						padding: 10px;
+					}
+
+					.${giveawayHelperUI.gh_button_on} {
+						background-color: #ff4136;
+					}
+
+					.${giveawayHelperUI.gh_button_off} {
+						background-color: #28b62c;
+					}
+				`);
+
+				$($(".Custom hr:first")).after(
+					$("<div>", { class: "text-center" }).append(
+						$("<h2>").append(
+							"Giveaway Helper"
+						)
+					).append(
+						giveawayHelperUI.main_box
+					).append(
+						$("<hr>")
+					)
+				);
+
+				var cache_id = `wgn_${CryptoJS.MD5(document.location.pathname + document.location.search)}`;
+				SteamHandler.getInstance().findGroups(addButton, true, true, cache_id);
 			},
 		};
 	})();
@@ -563,6 +599,20 @@
 				});
 			}
 
+			/**
+			 * Some sites remove links to a group after you get your reward, remember which groups we've seen where
+			 */
+			function cacheGroup(groups, id) {
+				GM_setValue(id, JSON.stringify(groups));
+			}
+
+			/**
+			 *
+			 */
+			function restoreCachedGroups(id) {
+				return JSON.parse(GM_getValue(id, JSON.stringify([])));
+			}
+
 			return {
 				/**
 				 *
@@ -578,6 +628,26 @@
 								prepCreateButton(group_data, button_callback, show_name, expected_user);
 							}
 						}, 100);
+					}
+				},
+
+				/**
+				 *
+				 */
+				findGroups: function(button_callback, show_name, do_cache, cache_id) {
+					var re = /steamcommunity\.com\/groups\/([a-zA-Z0-9\-\_]{2,32})/g,
+						groups = do_cache ? restoreCachedGroups(cache_id) : [],
+						match;
+
+					while((match = re.exec($("body").html())) !== null) {
+						groups.push(match[1].toLowerCase());
+					}
+
+					groups = $.unique(groups);
+					if(do_cache) cacheGroup(groups, cache_id);
+
+					for(var i = 0; i< groups.length; i++) {
+						SteamHandler.getInstance().handleEntry({ group_name: groups[i] }, button_callback, show_name);
 					}
 				}
 			};
@@ -632,14 +702,14 @@
 						.find("input[id='authenticity_token']").get(0))
 						.attr("value");
 					user_handle = $(response.responseText)
-						.find(".account-group.js-mini-current-user")
-						.attr("data-screen-name");
+						.find(".current-user a")
+						.attr("href");
 					user_id = $(response.responseText)
-						.find(".account-group.js-mini-current-user")
-						.attr("data-user-id");
+						.find("#current-user-id")
+						.attr("value");
 
 					auth_token = typeof auth_token == "undefined" ? null : auth_token;
-					user_handle = typeof user_handle == "undefined" ? null : user_handle;
+					user_handle = typeof user_handle == "undefined" ? null : user_handle.replace("/", "");
 					user_id = typeof user_id == "undefined" ? null : user_id;
 
 					ready_b = true;
@@ -1063,6 +1133,8 @@
 		}
 
 		return {
+			main_box: $("<div>"),
+
 			// Randomized CSS class names
 			gh_main_container:         randomString(10),
 			gh_button:                 randomString(10),
@@ -1141,8 +1213,8 @@
 				`);
 
 				notifications_box.addClass(this.gh_notification_container);
+				this.main_box.addClass(this.gh_main_container);
 				$("body").append(notifications_box);
-
 			},
 
 			/**
@@ -1371,12 +1443,19 @@
 	if(document.location.hostname == "gleam.io") {
 		giveawayHelperUI.loadUI();
 		gleamHelper.init();
-	} else if(document.location.hostname == "marvelousga.com") {
+	} else if(document.location.hostname == "marvelousga.com" ||
+		document.location.hostname == "giftybundle.com" ||
+		document.location.hostname == "www.chubbykeys.com" ||
+		document.location.hostname == "giveawayhopper.com"
+	) {
 		giveawayHelperUI.loadUI();
 		marvelousHelper.init();
 	} else if(document.location.hostname == "simplo.gg") {
 		giveawayHelperUI.loadUI();
 		simploHelper.init();
+	} else if(document.location.hostname == "whosgamingnow.net") {
+		giveawayHelperUI.loadUI();
+		wgnHelper.init();
 	} else {
 		commandHub.init();
 	}
