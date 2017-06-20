@@ -1,6 +1,8 @@
 # Giveaway Helper
 This script enhances a number of Steam Key Giveaway Sites by making certain requirements easier to complete and undo.
 
+## Supported Sites
+
 <table width="500px">
   <thead>
     <tr>
