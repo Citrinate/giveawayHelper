@@ -10,6 +10,7 @@
 // @match https://dev.twitter.com/
 // @match https://player.twitch.tv/
 // @match https://whosgamingnow.net/giveaway/*
+// @match http://whosgamingnow.net/giveaway/*
 // @match http://giftybundle.com/giveaway.php*
 // @match https://giftybundle.com/giveaway.php*
 // @match http://www.chubbykeys.com/giveaway.php*
