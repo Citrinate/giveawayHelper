@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.0.3
+// @version 2.0.4
 // @match https://gleam.io/*
 // @match https://marvelousga.com/giveaway.php*
 // @match https://simplo.gg/index.php?giveaway=*
