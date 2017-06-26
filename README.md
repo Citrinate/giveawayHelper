@@ -1,13 +1,6 @@
 # Giveaway Helper
 This script enhances a number of Steam Key Giveaway Sites by making certain requirements easier to complete and undo.
 
-## Installation
-1. Install [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) (for Chrome) or [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) (for Firefox)
-2. Go [here](https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/giveawayHelper.user.js)
-3. Click "Install"
-
-By default, the script will auto-update every 24 hours.  If an update adds support for a new giveaway site, then you may see a notficiation asking for permission before the auto-update can complete.
-
 ## Supported Sites
 <table>
   <thead>
@@ -33,3 +26,10 @@ By default, the script will auto-update every 24 hours.  If an update adds suppo
     <tr><td>Who's Gaming Now?!</td><td align="center">✔</td><td></td><td></td></tr>
   </tbody>
 </table>
+
+## Installation
+1. Install [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) (for Chrome) or [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) (for Firefox)
+2. Go [here](https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/giveawayHelper.user.js)
+3. Click "Install"
+
+By default, the script will auto-update every 24 hours.  If an update adds support for a new giveaway site, then you may see a notficiation asking for permission before the auto-update can complete.
