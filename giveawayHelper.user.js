@@ -3,22 +3,34 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.0.4
-// @match https://gleam.io/*
-// @match https://marvelousga.com/giveaway.php*
-// @match https://simplo.gg/index.php?giveaway=*
-// @match https://dev.twitter.com/
-// @match https://player.twitch.tv/
-// @match https://whosgamingnow.net/giveaway/*
-// @match http://whosgamingnow.net/giveaway/*
-// @match http://giftybundle.com/giveaway.php*
-// @match https://giftybundle.com/giveaway.php*
+// @version 2.0.5
+// @match http://chubbykeys.com/giveaway.php*
+// @match https://chubbykeys.com/giveaway.php*
 // @match http://www.chubbykeys.com/giveaway.php*
 // @match https://www.chubbykeys.com/giveaway.php*
+// @match https://dogebundle.com/index.php?page=redeem&id=*
+// @match https://www.dogebundle.com/index.php?page=redeem&id=*
+// @match http://giftybundle.com/giveaway.php*
+// @match https://giftybundle.com/giveaway.php*
+// @match http://www.giftybundle.com/giveaway.php*
+// @match https://www.giftybundle.com/giveaway.php*
 // @match https://giveawayhopper.com/giveaway.php*
+// @match https://gleam.io/*
+// @match http://www.keychampions.net/view.php?gid=*
+// @match https://www.keychampions.net/view.php?gid=*
+// @match http://keychampions.net/view.php?gid=*
+// @match https://keychampions.net/view.php?gid=*
+// @match https://marvelousga.com/giveaway.php*
+// @match https://simplo.gg/index.php?giveaway=*
+// @match http://whosgamingnow.net/giveaway/*
+// @match https://whosgamingnow.net/giveaway/*
+// @match http://www.whosgamingnow.net/giveaway/*
+// @match https://www.whosgamingnow.net/giveaway/*
 // @connect steamcommunity.com
 // @connect twitter.com
 // @connect twitch.tv
+// @match https://dev.twitter.com/
+// @match https://player.twitch.tv/
 // @grant GM_getValue
 // @grant GM_setValue
 // @grant GM_deleteValue
@@ -38,9 +50,50 @@
 	/**
 	 *
 	 */
+	var setup = (function() {
+		return {
+			/**
+			 *
+			 */
+			run: function() {
+				var found = false,
+					config = [
+						{ hostname: ["chubbykeys.com", "www.chubbykeys.com"], helper: basicHelper, cache: false },
+						{ hostname: ["dogebundle.com", "www.dogebundle.com"], helper: basicHelper, cache: "doge" },
+						{ hostname: ["giftybundle.com", "www.giftybundle.com"], helper: basicHelper, cache: false },
+						{ hostname: ["giveawayhopper.com"], helper: basicHelper, cache: false },
+						{ hostname: ["gleam.io"], helper: gleamHelper, cache: false },
+						{ hostname: ["keychampions.net", "www.keychampions.net"], helper: basicHelper, cache: "keyc" },
+						{ hostname: ["marvelousga.com"], helper: basicHelper, cache: false },
+						{ hostname: ["simplo.gg"], helper: basicHelper, cache: "simplo" },
+						{ hostname: ["whosgamingnow.net", "www.whosgamingnow.net"], helper: basicHelper, cache: "wgn" }
+					];
+
+				for(var i = 0; i < config.length; i++) {
+					var giveaway_site = config[i];
+
+					for(var j = 0; j < giveaway_site.hostname.length; j++) {
+						if(document.location.hostname == giveaway_site.hostname[j]) {
+							giveawayHelperUI.loadUI();
+							giveaway_site.helper.init(giveaway_site.cache);
+							found = true;
+						}
+					}
+				}
+
+				if(!found) {
+					commandHub.init();
+				}
+			}
+		};
+	})();
+
+	/**
+	 *
+	 */
 	var gleamHelper = (function() {
 		var gleam = null,
-			authentications = {};
+			authentications = { steam: false, twitter: false, twitch: false };
 
 		/**
 		 * Check to see what accounts the user has linked to gleam
@@ -93,7 +146,7 @@
 		 */
 		function addButton(entry_element) {
 			return function(new_button) {
-				new_button.addClass("btn-embossed btn-info");
+				new_button.addClass("btn btn-embossed btn-info");
 				$(entry_element).find(">a").first().append(new_button);
 			};
 		}
@@ -172,7 +225,7 @@
 				GM_addStyle(`
 					.${giveawayHelperUI.gh_button} {
 						bottom: 0px;
-						height: 20px;
+						height: 32px;
 						margin: auto;
 						padding: 6px;
 						position: absolute;
@@ -213,187 +266,24 @@
 	/**
 	 *
 	 */
-	var marvelousHelper = (function() {
-
-		/**
-		 * Places the button onto the page
-		 */
-		function addButton(new_button) {
-			giveawayHelperUI.main_box.append(
-				$("<div>", { class: "col-md-12" }).append(
-					new_button
-				)
-			);
-		}
-
+	var basicHelper = (function() {
 		return {
 			/**
 			 *
 			 */
-			init: function() {
-				GM_addStyle(`
-					.${giveawayHelperUI.gh_main_container} {
-						display: inline-block;
-						font-size: 14px;
-						line-height: 14px;
-					}
+			init: function(cache_prefix) {
+				var cache_id, do_cache;
 
-					.${giveawayHelperUI.gh_button} {
-						border-bottom-width: 4px !important;
-						margin: 8px !important;
-						color: #fff;
-					}
+				if(cache_prefix !== false) {
+					do_cache = true;
+					cache_id = `${cache_prefix}_${CryptoJS.MD5(document.location.pathname + document.location.search)}`;
+				} else {
+					do_cache = false;
+					cache_id = null;
+				}
 
-					.${giveawayHelperUI.gh_button_on} {
-						background-color: #ff4136;
-					}
-
-					.${giveawayHelperUI.gh_button_off} {
-						background-color: #28b62c;
-					}
-				`);
-
-				$(".container:first").before(
-					$("<div>", { class: "container" }).append(
-						$("<div>", { class: "col-md-8 col-md-offset-2" }).append(
-							$("<div>", { class: "panel panel-danger panel-2" }).append(
-								$("<div>", { class: "panel-heading" }).append(
-									$("<h3>", { class: "text-center panel-title" }).append(
-										"Giveaway Helper"
-									)
-								)
-							).append(
-								giveawayHelperUI.main_box
-							)
-						)
-					)
-				);
-
-				SteamHandler.getInstance().findGroups(addButton, true, false);
-			},
-		};
-	})();
-
-	/**
-	 *
-	 */
-	var simploHelper = (function() {
-
-		/**
-		 * Places the button onto the page
-		 */
-		function addButton(new_button) {
-			giveawayHelperUI.main_box.append(
-				$("<div>", { class: "col-md-12" }).append(
-					new_button
-				)
-			);
-		}
-
-		return {
-			/**
-			 *
-			 */
-			init: function() {
-				GM_addStyle(`
-					.${giveawayHelperUI.gh_main_container} {
-					}
-
-					.${giveawayHelperUI.gh_main_container}>div {
-						padding: 8px 16px;
-					}
-
-					.${giveawayHelperUI.gh_button} {
-						cursor: pointer;
-						padding: 8px;
-					}
-
-					.${giveawayHelperUI.gh_button_on} {
-						background-color: #ff4136;
-					}
-
-					.${giveawayHelperUI.gh_button_off} {
-						background-color: #28b62c;
-					}
-				`);
-
-				$($(".mod-desc")[0]).after(
-					$("<div>", { class: "log-in-sec", style: "height: auto;" }).append(
-						$("<div>", { class: "mod-desc-title" }).append(
-							$("<h3>").append(
-								"Giveaway Helper"
-							)
-						)
-					).append(
-						giveawayHelperUI.main_box
-					)
-				);
-
-				var cache_id = `simplo_${CryptoJS.MD5(document.location.pathname + document.location.search)}`;
-				SteamHandler.getInstance().findGroups(addButton, true, true, cache_id);
-			},
-		};
-	})();
-
-	/**
-	 *
-	 */
-	var wgnHelper = (function() {
-
-		/**
-		 * Places the button onto the page
-		 */
-		function addButton(new_button) {
-			giveawayHelperUI.main_box.append(new_button);
-		}
-
-		return {
-			/**
-			 *
-			 */
-			init: function() {
-				GM_addStyle(`
-					.${giveawayHelperUI.gh_main_container} {
-						max-width:600px;
-						margin:auto
-					}
-
-					.${giveawayHelperUI.gh_button} {
-						cursor: pointer;
-						display: block;
-						margin-top: 0px;
-						border: 1px solid #fff;
-						background-color: #171A21;
-						border-radius: 0px;
-						margin-bottom: 0px;
-						font-size: 18px;
-						color: #fff !important;
-						padding: 10px;
-					}
-
-					.${giveawayHelperUI.gh_button_on} {
-						background-color: #ff4136;
-					}
-
-					.${giveawayHelperUI.gh_button_off} {
-						background-color: #28b62c;
-					}
-				`);
-
-				$($(".Custom hr:first")).after(
-					$("<div>", { class: "text-center" }).append(
-						$("<h2>").append(
-							"Giveaway Helper"
-						)
-					).append(
-						giveawayHelperUI.main_box
-					).append(
-						$("<hr>")
-					)
-				);
-
-				var cache_id = `wgn_${CryptoJS.MD5(document.location.pathname + document.location.search)}`;
-				SteamHandler.getInstance().findGroups(addButton, true, true, cache_id);
+				giveawayHelperUI.defaultButtonSetup();
+				SteamHandler.getInstance().findGroups(giveawayHelperUI.addButton, true, do_cache, cache_id);
 			},
 		};
 	})();
@@ -493,13 +383,7 @@
 			 */
 			function toggleGroupStatus(button_id, group_name, group_id, show_name) {
 				var steam_community_down_error = `
-					The Steam Community is experiencing issues.
-					Please handle any remaining Steam entries manually.
-					<br>
-					If you're having trouble getting groups to appear on
-					<a href="https://steamcommunity.com/my/groups/">your groups list</a>,
-					joining a <a href="https://steamcommunity.com/search/#filter=groups">new group</a>
-					may force the list to update.
+					The Steam Community is experiencing issues.  Please handle any remaining Steam entries manually.
 				`;
 
 				if(active_groups.indexOf(group_name) == -1) {
@@ -635,7 +519,8 @@
 				},
 
 				/**
-				 *
+				 * http://steamcommunity.com/gid/[g:1:11717092] the :1: can be replaced with any number
+				 * http://steamcommunity.com/gid/11717092
 				 */
 				findGroups: function(button_callback, show_name, do_cache, cache_id) {
 					var re = /steamcommunity\.com\/groups\/([a-zA-Z0-9\-\_]{2,32})/g,
@@ -1109,9 +994,17 @@
      */
 	var giveawayHelperUI = (function() {
 		var active_errors = [],
-			active_notifications = {},
 			active_buttons = {},
-			notifications_box = $("<div>");
+			gh_main_container = randomString(10),
+			gh_button_container = randomString(10),
+			gh_button_title = randomString(10),
+			gh_button_loading = randomString(10),
+			gh_notification_container = randomString(10),
+			gh_notification = randomString(10),
+			gh_error = randomString(10),
+			gh_close = randomString(10),
+			main_container = $("<div>", { class: gh_main_container }),
+			button_container = $("<span>");
 
 		/**
 		 * Generate a random alphanumeric string
@@ -1132,21 +1025,13 @@
 		 * Push the page down to make room for notifications
 		 */
 		function updateTopMargin() {
-			$("html").css("margin-top", (notifications_box.is(":visible") ? notifications_box.outerHeight() : 0));
+			$("html").css("margin-top", (main_container.is(":visible") ? main_container.outerHeight() : 0));
 		}
 
 		return {
-			main_box: $("<div>"),
-
-			// Randomized CSS class names
-			gh_main_container:         randomString(10),
-			gh_button:                 randomString(10),
-			gh_button_on:              randomString(10),
-			gh_button_off:             randomString(10),
-			gh_notification_container: randomString(10),
-			gh_notification:           randomString(10),
-			gh_error:                  randomString(10),
-			gh_close:                  randomString(10),
+			gh_button: randomString(10),
+			gh_button_on: randomString(10),
+			gh_button_off: randomString(10),
 
 			/**
 			 * Print the UI
@@ -1157,9 +1042,11 @@
 						overflow-y: scroll !important;
 					}
 
-					.${this.gh_notification_container} {
+					.${gh_main_container} {
+						font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 						font-size: 16.5px;
 						left: 0px;
+						line-height: 21px;
 						position: fixed;
 						text-align: center;
 						top: 0px;
@@ -1167,121 +1054,140 @@
 						z-index: 9999999999;
 					}
 
-					.${this.gh_notification} {
-						background: #000;
+					.${gh_button_container} {
+						background-color: #000;
 						border-top: 1px solid rgba(52, 152, 219, .5);
 						box-shadow: 0px 2px 10px rgba(0, 0, 0, .5);
 						box-sizing: border-box;
 						color: #3498db;
-						line-height: 22px;
-						padding: 12px;
-						width: 100%;
+						padding: 8px;
 					}
 
-					.${this.gh_error} {
-						background: #e74c3c;
-						border-top: 1px solid rgba(255, 255, 255, .5);
-						box-shadow: 0px 2px 10px rgba(231, 76, 60, .5);
+					.${gh_button_title} {
+						font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+						padding: 10px 15px;
+					}
+
+					.${gh_button_loading} {
+						-webkit-animation: fa-spin 2s infinite linear;
+						animation: fa-spin 2s infinite linear;
+						display: inline-block;
+						font: normal normal normal 14px/1 FontAwesome;
+						transform-origin: 45% 55%;
+					}
+
+					.${gh_button_loading}:before {
+						content: "\\21B7";
+					}
+
+					.${gh_notification} {
 						box-sizing: border-box;
-						color: #fff;
-						line-height: 22px;
-						padding: 12px;
-						width: 100%;
+						padding: 8px;
 					}
 
-					.${this.gh_error} a {
-						color: #fff;
+					.${gh_error} {
+						background: #f2dede;
+						box-shadow: 0px 2px 10px rgba(231, 76, 60, .5);
+						color: #a94442;
 					}
 
-					.${this.gh_close} {
-						float: right;
-						background: rgba(255, 255, 255, .15);
-						border: 1px solid #fff;
-						box-shadow: 0px 0px 8px rgba(255, 255, 255, .5);
+					.${gh_error} a {
+						color: #a94442;
+						font-weight: 700;
+					}
+
+					.${gh_close} {
+						color: #000;
+						background: 0 0;
+						border: 0;
 						cursor: pointer;
-						margin-left: 4px;
-						padding: 0px 4px;
+						display: block;
+						float: right;
+						font-size: 21px;
+						font-weight: 700;
+						line-height: 1;
+						padding: 0px;
+						text-shadow: 0 1px 0 #fff;
+						opacity: .2;
 					}
 
-					.${this.gh_close}:hover {
-						background: #fff;
-						color: #e74c3c;
-					}
-
-					.${this.gh_close}::before {
-						content: 'x';
-						position: relative;
-						top: -1px;
+					.${gh_close}:hover {
+						opacity: .5;
 					}
 				`);
 
-				notifications_box.addClass(this.gh_notification_container);
-				this.main_box.addClass(this.gh_main_container);
-				$("body").append(notifications_box);
+				$("body").append(main_container);
 			},
 
 			/**
-			 * Print an error
+			 *
 			 */
-			showError: function(msg) {
-				// Don't print the same error multiple times
-				if(active_errors.indexOf(msg) != -1) return
+			defaultButtonSetup: function() {
+				GM_addStyle(`
+					.${this.gh_button} {
+						background-image:none;
+						border: 1px solid transparent;
+						border-radius: 3px !important;
+						cursor: pointer;
+						display: inline-block;
+						font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+						font-size: 12px;
+						font-weight: 400;
+						height: 30px;
+						line-height: 1.5 !important;
+						margin: 4px 8px 4px 0px;
+						padding: 5px 10px;
+						text-align: center;
+						vertical-align: middle;
+						white-space: nowrap;
+					}
 
-				var self = this;
+					.${this.gh_button}:active {
+						box-shadow: inset 0 3px 5px rgba(0,0,0,.125);
+						outline: 0;
+					}
 
-				active_errors.push(msg);
+					.${this.gh_button_on} {
+						background-color: #337ab7;
+						border-color: #2e6da4;
+						color: #fff;
+					}
 
-				notifications_box.append(
-					$("<div>", { class: this.gh_error }).html(`<strong>Giveaway Helper Error</strong>: ${msg}`).prepend(
-						$("<div>", { class: this.gh_close }).click(function() {
-							$(this).unbind("click");
-							$(this).parent().slideUp(400, function() {
-								active_errors.splice(active_errors.indexOf(msg), 1);
-								$(this).remove();
-								updateTopMargin();
-							});
-						})
-					));
+					.${this.gh_button_on}:hover {
+						background-color: #286090;
+						border-color: #204d74;
+						color: #fff;
+					}
+
+					.${this.gh_button_off} {
+						background-color: #d9534f;
+						border-color: #d43f3a;
+						color: #fff;
+					}
+
+					.${this.gh_button_off}:hover {
+						background-color: #c9302c;
+						border-color: #ac2925;
+						color: #fff;
+					}
+				`);
+
+				main_container.append(
+					$("<div>", { class: gh_button_container }).append(
+						$("<span>", { class: gh_button_title }).html("Giveaway Helper v" + GM_info.script.version)
+					).append(button_container)
+				);
 
 				updateTopMargin();
 			},
 
 			/**
-			 * Display or update a notification
+			 *
 			 */
-			showNotification: function(notification_id, msg, hide_delay) {
-				if(!active_notifications[notification_id]) {
-					// New notification
-					active_notifications[notification_id] = $("<div>", { class: this.gh_notification });
-					notifications_box.append(active_notifications[notification_id]);
-				}
-
-				// Update notification
-				active_notifications[notification_id].html(`<strong>Giveaway Helper Notification</strong>: ${msg}`);
+			addButton: function(new_button) {
+				button_container.append(new_button);
+				new_button.width(new_button.outerWidth());
 				updateTopMargin();
-
-				// Automatically hide notification after a delay
-				if(typeof hide_delay == "number") {
-					var self = this;
-					setTimeout(function() {
-						self.hideNotification(notification_id);
-					}, hide_delay);
-				}
-			},
-
-			/**
-			 * Remove a notification
-			 */
-			hideNotification: function(notification_id) {
-				if(active_notifications[notification_id]) {
-					var old_notification = active_notifications[notification_id];
-
-					delete active_notifications[notification_id];
-					old_notification.slideUp(400, function() {
-						old_notification.remove();
-						updateTopMargin();
-					});
-				}
 			},
 
 			/**
@@ -1289,14 +1195,14 @@
 			 */
 			buildButton: function(button_id, label, button_on, click_function) {
 				var new_button =
-						$("<a>", {
-							class: `${this.gh_button} ${button_on ? this.gh_button_on : this.gh_button_off} btn`
+						$("<button>", { type: "button",
+							class: `${this.gh_button} ${button_on ? this.gh_button_on : this.gh_button_off}`
 						}).append(
-							$("<span>", { text: label })).append(
-							$("<span>", { class: "fa ng-scope fa-refresh fa-spin", css: { display: "none" }})
+							$("<span>").append(label)).append(
+							$("<span>", { class: gh_button_loading, css: { display: "none" }})
 						).click(function(e) {
 							e.stopPropagation();
-							if(!active_buttons[button_id].find(".fa").is(":visible")) {
+							if(!active_buttons[button_id].find(`.${gh_button_loading}`).is(":visible")) {
 								click_function();
 							}
 						});
@@ -1338,7 +1244,7 @@
 			 */
 			showButtonLoading: function(button_id) {
 				active_buttons[button_id].find("span").first().hide();
-				active_buttons[button_id].find(".fa").show();
+				active_buttons[button_id].find(`.${gh_button_loading}`).show();
 			},
 
 			/**
@@ -1346,7 +1252,36 @@
 			 */
 			hideButtonLoading: function(button_id) {
 				active_buttons[button_id].find("span").first().show();
-				active_buttons[button_id].find(".fa").hide();
+				active_buttons[button_id].find(`.${gh_button_loading}`).hide();
+			},
+
+			/**
+			 * Print an error
+			 */
+			showError: function(msg) {
+				// Don't print the same error multiple times
+				if(active_errors.indexOf(msg) != -1) return;
+
+				var self = this;
+
+				main_container.append(
+					$("<div>", { class: `${gh_notification} ${gh_error}` }).append(
+						$("<button>", { class: gh_close}).append(
+							$("<span>").html("&times;")
+						).click(function() {
+							$(this).unbind("click");
+							$(this).parent().slideUp(400, function() {
+								active_errors.splice(active_errors.indexOf(msg), 1);
+								$(this).remove();
+								updateTopMargin();
+							});
+						})
+					).append(
+						$("<strong>").html("Giveaway Helper Error: ")
+					).append(msg)
+				);
+
+				updateTopMargin();
 			}
 		};
 	})();
@@ -1443,23 +1378,5 @@
 		};
 	})();
 
-	if(document.location.hostname == "gleam.io") {
-		giveawayHelperUI.loadUI();
-		gleamHelper.init();
-	} else if(document.location.hostname == "marvelousga.com" ||
-		document.location.hostname == "giftybundle.com" ||
-		document.location.hostname == "www.chubbykeys.com" ||
-		document.location.hostname == "giveawayhopper.com"
-	) {
-		giveawayHelperUI.loadUI();
-		marvelousHelper.init();
-	} else if(document.location.hostname == "simplo.gg") {
-		giveawayHelperUI.loadUI();
-		simploHelper.init();
-	} else if(document.location.hostname == "whosgamingnow.net") {
-		giveawayHelperUI.loadUI();
-		wgnHelper.init();
-	} else {
-		commandHub.init();
-	}
+	setup.run();
 })();
