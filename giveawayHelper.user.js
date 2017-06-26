@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.0.5
+// @version 2.0.6
 // @match http://chubbykeys.com/giveaway.php*
 // @match https://chubbykeys.com/giveaway.php*
 // @match http://www.chubbykeys.com/giveaway.php*
@@ -16,6 +16,7 @@
 // @match https://www.giftybundle.com/giveaway.php*
 // @match https://giveawayhopper.com/giveaway.php*
 // @match https://gleam.io/*
+// @match https://www.indiegala.com/*
 // @match http://www.keychampions.net/view.php?gid=*
 // @match https://www.keychampions.net/view.php?gid=*
 // @match http://keychampions.net/view.php?gid=*
@@ -53,20 +54,90 @@
 	var setup = (function() {
 		return {
 			/**
+			 * Determine what to do for this page based on what's defined in the "config" variable
+			 *
+			 * 		hostname: An array of strings
+			 *			The hostname of the site we're setting the config for.
+			 *			Must be the same as what's defined as @match in the metadata block above.
+			 *
+			 *		helper: An object
+			 * 			The class which will determine how the do/undo buttons are added to the page.
+			 *			Usually this will be set to basicHelper, which simply searches for links to Steam Groups and
+			 *			adds buttons for them at the top of the page.
+			 *
+			 *		domMatch: An array of strings
+			 *			In some cases, we don't know what page a giveaway will be on.  For example, Indiegala embeds
+			 *			giveaways on various parts of their site which they want to attract attention to.  Instead we
+			 *			need to search the page for a DOM element that only appears when there is a giveaway on that
+			 *			page. If any of the elements in this array match, then the script will be run on this page.
+			 *
+			 *		urlMatch: An array of regular expressions
+			 *			Used in conjunction with domMatch.  Used for pages on the domain that we do know are relevant
+			 *			to giveaways, and we always want to run the script on.  For example, the giveaway confirmation
+			 *			page on Indiegala.  The regular expressions will be tested against the url of the pages, and if
+			 *			any of them match, the script will be run on this page.
+			 *
+			 *		cache: Boolean
+			 *			For use with basicHelper.  Some sites will remove links to Steam groups after the entry has
+			 *			been completed.  Set this to true so that any groups we find will be saved and presented later.
 			 *
 			 */
 			run: function() {
 				var found = false,
 					config = [
-						{ hostname: ["chubbykeys.com", "www.chubbykeys.com"], helper: basicHelper, cache: false },
-						{ hostname: ["dogebundle.com", "www.dogebundle.com"], helper: basicHelper, cache: "doge" },
-						{ hostname: ["giftybundle.com", "www.giftybundle.com"], helper: basicHelper, cache: false },
-						{ hostname: ["giveawayhopper.com"], helper: basicHelper, cache: false },
-						{ hostname: ["gleam.io"], helper: gleamHelper, cache: false },
-						{ hostname: ["keychampions.net", "www.keychampions.net"], helper: basicHelper, cache: "keyc" },
-						{ hostname: ["marvelousga.com"], helper: basicHelper, cache: false },
-						{ hostname: ["simplo.gg"], helper: basicHelper, cache: "simplo" },
-						{ hostname: ["whosgamingnow.net", "www.whosgamingnow.net"], helper: basicHelper, cache: "wgn" }
+						{
+							hostname: ["chubbykeys.com", "www.chubbykeys.com"],
+							helper: basicHelper,
+							cache: false
+						},
+						{
+							hostname: ["dogebundle.com", "www.dogebundle.com"],
+							helper: basicHelper,
+							cache: true
+						},
+						{
+							hostname: ["giftybundle.com", "www.giftybundle.com"],
+							helper: basicHelper,
+							cache: false
+						},
+						{
+							hostname: ["giveawayhopper.com"],
+							helper: basicHelper,
+							cache: false
+						},
+						{
+							hostname: ["gleam.io"],
+							helper: gleamHelper,
+							cache: false
+						},
+						{
+							hostname: ["www.indiegala.com"],
+							helper: basicHelper,
+							domMatch: [".giveaway-header"],
+							urlMatch: [/givmessage/],
+							cache: false
+						},
+						{
+							hostname: ["keychampions.net", "www.keychampions.net"],
+							helper: basicHelper,
+							cache: true
+						},
+						{
+							hostname: ["marvelousga.com"],
+							helper: basicHelper,
+							cache: false
+						},
+						{
+							hostname: ["simplo.gg"],
+							helper: basicHelper,
+							cache: true
+						},
+						{
+							hostname: ["whosgamingnow.net", "www.whosgamingnow.net"],
+							helper:
+							basicHelper,
+							cache: true
+						}
 					];
 
 				for(var i = 0; i < config.length; i++) {
@@ -74,9 +145,41 @@
 
 					for(var j = 0; j < giveaway_site.hostname.length; j++) {
 						if(document.location.hostname == giveaway_site.hostname[j]) {
-							giveawayHelperUI.loadUI();
-							giveaway_site.helper.init(giveaway_site.cache);
 							found = true;
+
+							// determine whether to run the script based on the content of the page
+							if(typeof giveaway_site.domMatch !== "undefined" ||
+								typeof giveaway_site.urlMatch !== "undefined"
+							) {
+								var match_found = false;
+
+								// check the DOM for matches as defined by domMatch
+								if(typeof giveaway_site.domMatch !== "undefined") {
+									for(var k = 0; k < giveaway_site.domMatch.length; k++) {
+										if($(giveaway_site.domMatch[k]).length !== 0) {
+											match_found = true;
+											break;
+										}
+									}
+								}
+
+								// check the URL for matches as defined by urlMatch
+								if(typeof giveaway_site.urlMatch !== "undefined") {
+									for(var l = 0; l < giveaway_site.urlMatch.length; l++) {
+										var reg = new RegExp(giveaway_site.urlMatch[l]);
+
+										if(reg.test(location.href)) {
+											match_found = true;
+											break;
+										}
+									}
+								}
+
+								if(!match_found) break;
+							}
+
+							giveawayHelperUI.loadUI();
+							giveaway_site.helper.init(giveaway_site.cache, giveaway_site.cache_id);
 						}
 					}
 				}
@@ -271,15 +374,13 @@
 			/**
 			 *
 			 */
-			init: function(cache_prefix) {
-				var cache_id, do_cache;
+			init: function(do_cache, cache_id) {
+				if(do_cache) {
+					if(typeof cache_id === "undefined") {
+						cache_id = document.location.hostname + document.location.pathname + document.location.search;
+					}
 
-				if(cache_prefix !== false) {
-					do_cache = true;
-					cache_id = `${cache_prefix}_${CryptoJS.MD5(document.location.pathname + document.location.search)}`;
-				} else {
-					do_cache = false;
-					cache_id = null;
+					cache_id = `cache_${CryptoJS.MD5(cache_id)}`;
 				}
 
 				giveawayHelperUI.defaultButtonSetup();
@@ -433,7 +534,6 @@
 
 										// Failed to join the group, Steam Community is probably down
 										callback(false);
-										console.debug(response);
 									} else {
 										callback(true);
 									}
@@ -460,7 +560,6 @@
 
 								// Failed to leave the group, Steam Community is probably down
 								callback(false);
-								console.debug(response);
 							} else {
 								callback(true);
 							}
@@ -799,7 +898,6 @@
 					data: $.param({ _method: "DELETE", authenticity_token: auth_token, id: tweet_id }),
 					onload: function(response) {
 						if(response.status != 200) {
-							console.debug(response);
 							giveawayHelperUI.showError(`Failed to delete
 								<a href="https://twitter.com/${user_handle}" target="_blank">Tweet}</a>`);
 						}
@@ -823,7 +921,6 @@
 					data: $.param({ _method: "DELETE", id: tweet_id }),
 					onload: function(response) {
 						if(response.status != 200) {
-							console.debug(response);
 							giveawayHelperUI.showError(`Failed to delete
 								<a href="https://twitter.com/${user_handle}" target="_blank">Retweet</a>`);
 						}
@@ -954,7 +1051,6 @@
 						if(response.status != 204 && response.status != 200) {
 							giveawayHelperUI.showError(`Failed to unfollow Twitch user:
 								<a href="https://twitch.tv/${twitch_handle}" target="_blank">${twitch_handle}</a>`);
-							console.debug(response);
 						}
 					}
 				});
