@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.0.6
+// @version 2.0.7
 // @match http://chubbykeys.com/giveaway.php*
 // @match https://chubbykeys.com/giveaway.php*
 // @match http://www.chubbykeys.com/giveaway.php*
@@ -57,13 +57,13 @@
 			 * Determine what to do for this page based on what's defined in the "config" variable
 			 *
 			 * 		hostname: An array of strings
-			 *			The hostname of the site we're setting the config for.
-			 *			Must be the same as what's defined as @match in the metadata block above.
+			 *			The hostname of the site we're setting the config for. Must be the same as what's defined
+			 *			as @match in the metadata block above.
 			 *
 			 *		helper: An object
-			 * 			The class which will determine how the do/undo buttons are added to the page.
-			 *			Usually this will be set to basicHelper, which simply searches for links to Steam Groups and
-			 *			adds buttons for them at the top of the page.
+			 * 			The class which will determine how the do/undo buttons are added to the page. Usually this will
+			 *			be set to basicHelper, which simply searches for links to Steam Groups and adds buttons for
+			 *			them at the top of the page.
 			 *
 			 *		domMatch: An array of strings
 			 *			In some cases, we don't know what page a giveaway will be on.  For example, Indiegala embeds
@@ -81,6 +81,10 @@
 			 *			For use with basicHelper.  Some sites will remove links to Steam groups after the entry has
 			 *			been completed.  Set this to true so that any groups we find will be saved and presented later.
 			 *
+			 *		offset: Array of integers
+			 *			For use with basicHelper.  Used to correct instances where the script's UI blocks parts of a
+			 *			site.  Offsets the UI by X number of pixels in the order of [top, left, right].
+			 *			Directions that shouldn't be offset should be set to 0.
 			 */
 			run: function() {
 				var found = false,
@@ -93,7 +97,8 @@
 						{
 							hostname: ["dogebundle.com", "www.dogebundle.com"],
 							helper: basicHelper,
-							cache: true
+							cache: true,
+							offset: [50, 0, 0]
 						},
 						{
 							hostname: ["giftybundle.com", "www.giftybundle.com"],
@@ -115,12 +120,14 @@
 							helper: basicHelper,
 							domMatch: [".giveaway-header"],
 							urlMatch: [/givmessage/],
-							cache: false
+							cache: false,
+							offset: [0, 260, 0]
 						},
 						{
 							hostname: ["keychampions.net", "www.keychampions.net"],
 							helper: basicHelper,
-							cache: true
+							cache: true,
+							offset: [0, 120, 0]
 						},
 						{
 							hostname: ["marvelousga.com"],
@@ -141,22 +148,22 @@
 					];
 
 				for(var i = 0; i < config.length; i++) {
-					var giveaway_site = config[i];
+					var site = config[i];
 
-					for(var j = 0; j < giveaway_site.hostname.length; j++) {
-						if(document.location.hostname == giveaway_site.hostname[j]) {
+					for(var j = 0; j < site.hostname.length; j++) {
+						if(document.location.hostname == site.hostname[j]) {
 							found = true;
 
 							// determine whether to run the script based on the content of the page
-							if(typeof giveaway_site.domMatch !== "undefined" ||
-								typeof giveaway_site.urlMatch !== "undefined"
+							if(typeof site.domMatch !== "undefined" ||
+								typeof site.urlMatch !== "undefined"
 							) {
 								var match_found = false;
 
 								// check the DOM for matches as defined by domMatch
-								if(typeof giveaway_site.domMatch !== "undefined") {
-									for(var k = 0; k < giveaway_site.domMatch.length; k++) {
-										if($(giveaway_site.domMatch[k]).length !== 0) {
+								if(typeof site.domMatch !== "undefined") {
+									for(var k = 0; k < site.domMatch.length; k++) {
+										if($(site.domMatch[k]).length !== 0) {
 											match_found = true;
 											break;
 										}
@@ -164,9 +171,9 @@
 								}
 
 								// check the URL for matches as defined by urlMatch
-								if(typeof giveaway_site.urlMatch !== "undefined") {
-									for(var l = 0; l < giveaway_site.urlMatch.length; l++) {
-										var reg = new RegExp(giveaway_site.urlMatch[l]);
+								if(typeof site.urlMatch !== "undefined") {
+									for(var l = 0; l < site.urlMatch.length; l++) {
+										var reg = new RegExp(site.urlMatch[l]);
 
 										if(reg.test(location.href)) {
 											match_found = true;
@@ -179,7 +186,7 @@
 							}
 
 							giveawayHelperUI.loadUI();
-							giveaway_site.helper.init(giveaway_site.cache, giveaway_site.cache_id);
+							site.helper.init(site.cache, site.cache_id, site.offset);
 						}
 					}
 				}
@@ -374,8 +381,8 @@
 			/**
 			 *
 			 */
-			init: function(do_cache, cache_id) {
-				if(do_cache) {
+			init: function(do_cache, cache_id, offset) {
+				if(typeof do_cache !== "undefined" && do_cache) {
 					if(typeof cache_id === "undefined") {
 						cache_id = document.location.hostname + document.location.pathname + document.location.search;
 					}
@@ -383,7 +390,7 @@
 					cache_id = `cache_${CryptoJS.MD5(cache_id)}`;
 				}
 
-				giveawayHelperUI.defaultButtonSetup();
+				giveawayHelperUI.defaultButtonSetup(offset);
 				SteamHandler.getInstance().findGroups(giveawayHelperUI.addButton, true, do_cache, cache_id);
 			},
 		};
@@ -1121,7 +1128,9 @@
 		 * Push the page down to make room for notifications
 		 */
 		function updateTopMargin() {
-			$("html").css("margin-top", (main_container.is(":visible") ? main_container.outerHeight() : 0));
+			$("html").css("margin-top",
+				main_container.is(":visible") ? (main_container.outerHeight() + main_container.offset().top) : 0
+			);
 		}
 
 		return {
@@ -1146,7 +1155,7 @@
 						position: fixed;
 						text-align: center;
 						top: 0px;
-						width: 100%;
+						right: 0px;
 						z-index: 9999999999;
 					}
 
@@ -1218,7 +1227,7 @@
 			/**
 			 *
 			 */
-			defaultButtonSetup: function() {
+			defaultButtonSetup: function(offset) {
 				GM_addStyle(`
 					.${this.gh_button} {
 						background-image:none;
@@ -1267,6 +1276,10 @@
 						color: #fff;
 					}
 				`);
+
+				if(typeof offset !== "undefined") {
+					main_container.css({top: offset[0], left: offset[1], right: offset[2]});
+				}
 
 				main_container.append(
 					$("<div>", { class: gh_button_container }).append(
