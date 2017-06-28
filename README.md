@@ -3,6 +3,8 @@ This script enhances a number of Steam Key Giveaway Sites by making certain requ
 
 *README Translations: [беларуская](https://github.com/Citrinate/giveawayHelper/blob/master/README_BY.MD), [Русский](https://github.com/Citrinate/giveawayHelper/blob/master/README_RU.MD), [Українська](https://github.com/Citrinate/giveawayHelper/blob/master/README_UA.MD)*
 
+**Disclaimer: The usage of this script may violate the Terms of Service of the sites it runs on. Use at your own risk.**
+
 ## Supported Sites
 <table>
   <thead>
