@@ -1,6 +1,8 @@
 # Giveaway Helper
 Цей скрипт розширює функціонал сайтів роздачі ключів Steam, даючи можливість Вам виконувати завдання в пару кліків.
 
+**Disclaimer: Ви використовуєте скрипт на свій страх та ризик.**
+
 ## Сайти з якими працює скрипт
 
 <table width="500px">
@@ -16,13 +18,16 @@
     </tr>
   </thead>
   <tbody>
-    <tr><td>ChubbyKeys</td><td align="center">✔️</td><td></td><td></td></tr>
-    <tr><td>GiftyBundle</td><td align="center">✔️</td><td></td><td></td></tr>
-    <tr><td>Giveawayhopper</td><td align="center">✔️</td><td></td><td></td></tr>
+    <tr><td>ChubbyKeys</td><td align="center">✔</td><td></td><td></td></tr>
+    <tr><td>DogeBundle</td><td align="center">✔</td><td></td><td></td></tr>
+    <tr><td>GiftyBundle</td><td align="center">✔</td><td></td><td></td></tr>
+    <tr><td>Giveawayhopper</td><td align="center">✔</td><td></td><td></td></tr>
     <tr><td>Gleam.io (<a href="https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/images/gleam.png">превью</a>)</td><td align="center">✔️</td><td align="center">✔️</td><td align="center">✔️</td></tr>
-    <tr><td>Marvelousga</td><td align="center">✔️</td><td></td><td></td></tr>
-    <tr><td>Simplo.gg</td><td align="center">✔️</td><td></td><td></td></tr>
-    <tr><td>Who's Gaming Now?!</td><td align="center">✔️</td><td></td><td></td></tr>
+    <tr><td>Indiegala</td><td align="center">✔</td><td></td><td></td></tr>
+    <tr><td>Key Champions</td><td align="center">✔</td><td></td><td></td></tr>
+    <tr><td>Marvelousga</td><td align="center">✔</td><td></td><td></td></tr>
+    <tr><td>Simplo.gg</td><td align="center">✔</td><td></td><td></td></tr>
+    <tr><td>Who's Gaming Now?!</td><td align="center">✔</td><td></td><td></td></tr>
   </tbody>
 </table>
 
