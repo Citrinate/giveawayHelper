@@ -17,17 +17,17 @@
 // @connect steamcommunity.com
 // @connect twitter.com
 // @connect twitch.tv
-// @match *://dev.twitter.com/
-// @match *://player.twitch.tv/
+// @match https://dev.twitter.com/
+// @match https://player.twitch.tv/
 // @grant GM_getValue
 // @grant GM_setValue
 // @grant GM_deleteValue
 // @grant GM_addStyle
 // @grant GM_xmlhttpRequest
-// @updateURL *://raw.githubusercontent.com/Citrinate/giveawayHelper/master/giveawayHelper.user.js
-// @downloadURL *://raw.githubusercontent.com/Citrinate/giveawayHelper/master/giveawayHelper.user.js
-// @require *://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js
-// @require *://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js
+// @updateURL https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/giveawayHelper.user.js
+// @downloadURL https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/giveawayHelper.user.js
+// @require https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js
+// @require https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js
 // @run-at document-end
 // ==/UserScript==
 
