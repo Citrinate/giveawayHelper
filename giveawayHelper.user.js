@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.0.7
+// @version 2.0.8
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.giftybundle.com/giveaway.php*
@@ -12,6 +12,7 @@
 // @match *://*.indiegala.com/*
 // @match *://*.keychampions.net/view.php?gid=*
 // @match *://*.marvelousga.com/giveaway.php*
+// @match *://*.marvelousga.com/raffle.php*
 // @match *://*.simplo.gg/index.php?giveaway=*
 // @match *://*.whosgamingnow.net/giveaway/*
 // @connect steamcommunity.com
