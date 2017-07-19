@@ -3,9 +3,10 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.0.8
+// @version 2.0.9
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
+// @match *://*.getkeys.net/giveaway.php*
 // @match *://*.giftybundle.com/giveaway.php*
 // @match *://*.giveawayhopper.com/giveaway.php*
 // @match *://*.gleam.io/*
@@ -87,6 +88,11 @@
 							helper: basicHelper,
 							cache: true,
 							offset: [50, 0, 0]
+						},
+						{
+							hostname: ["getkeys.net", "www.getkeys.net"],
+							helper: basicHelper,
+							cache: false
 						},
 						{
 							hostname: ["giftybundle.com", "www.giftybundle.com"],

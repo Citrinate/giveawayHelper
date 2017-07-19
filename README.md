@@ -21,6 +21,7 @@ This script enhances a number of Steam Key Giveaway Sites by making certain requ
   <tbody>
     <tr><td>ChubbyKeys</td><td align="center">✔</td><td></td><td></td></tr>
     <tr><td>DogeBundle</td><td align="center">✔</td><td></td><td></td></tr>
+    <tr><td>Getkeys</td><td align="center">✔</td><td></td><td></td></tr>
     <tr><td>GiftyBundle</td><td align="center">✔</td><td></td><td></td></tr>
     <tr><td>Giveawayhopper</td><td align="center">✔</td><td></td><td></td></tr>
     <tr><td>Gleam.io (<a href="https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/images/gleam.png">preview</a>)</td><td align="center">✔</td><td align="center">✔</td><td align="center">✔</td></tr>
