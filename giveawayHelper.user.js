@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.0.9
+// @version 2.0.10
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.getkeys.net/giveaway.php*
@@ -422,7 +422,7 @@
 						}
 					});
 
-					$.unique(active_groups);
+					active_groups = giveawayHelperUI.removeDuplicates(active_groups);
 					ready = true;
 				}
 			});
@@ -631,7 +631,7 @@
 						groups.push(match[1].toLowerCase());
 					}
 
-					groups = $.unique(groups);
+					groups = giveawayHelperUI.removeDuplicates(groups);
 					if(do_cache) cacheGroup(groups, cache_id);
 
 					for(var i = 0; i< groups.length; i++) {
@@ -1096,6 +1096,7 @@
 			gh_button_container = randomString(10),
 			gh_button_title = randomString(10),
 			gh_button_loading = randomString(10),
+			gh_spin = randomString(10),
 			gh_notification_container = randomString(10),
 			gh_notification = randomString(10),
 			gh_error = randomString(10),
@@ -1168,15 +1169,37 @@
 					}
 
 					.${gh_button_loading} {
-						-webkit-animation: fa-spin 2s infinite linear;
-						animation: fa-spin 2s infinite linear;
+						-webkit-animation: ${gh_spin} 2s infinite linear;
+						animation: ${gh_spin} 2s infinite linear;
 						display: inline-block;
-						font: normal normal normal 14px/1 FontAwesome;
+						font: normal normal normal 14px/1;
 						transform-origin: 45% 55%;
 					}
 
 					.${gh_button_loading}:before {
 						content: "\\21B7";
+					}
+
+					@-webkit-keyframes ${gh_spin} {
+						0% {
+							-webkit-transform:rotate(0deg);
+							transform:rotate(0deg);
+						}
+						100%{
+							-webkit-transform:rotate(359deg);
+							transform:rotate(359deg);
+						}
+					}
+
+					@keyframes ${gh_spin} {
+						0% {
+							-webkit-transform:rotate(0deg);
+							transform:rotate(0deg);
+						}
+						100% {
+							-webkit-transform:rotate(359deg);
+							transform:rotate(359deg);
+						}
 					}
 
 					.${gh_notification} {
@@ -1385,6 +1408,21 @@
 				);
 
 				updateTopMargin();
+			},
+
+			/**
+			 * Remove duplicate items from an array
+			 */
+			removeDuplicates: function(arr) {
+				var out = [];
+
+				for(var i = 0; i < arr.length; i++) {
+					if (out.indexOf(arr[i]) == -1) {
+						out.push(arr[i]);
+					}
+				}
+
+				return out;
 			}
 		};
 	})();
