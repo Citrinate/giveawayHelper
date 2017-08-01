@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.0.10
+// @version 2.0.11
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.getkeys.net/giveaway.php*
@@ -1227,10 +1227,13 @@
 						float: right;
 						font-size: 21px;
 						font-weight: 700;
+						height: auto;
 						line-height: 1;
+						margin: 0px;
+						opacity: .2;
 						padding: 0px;
 						text-shadow: 0 1px 0 #fff;
-						opacity: .2;
+						width: auto;
 					}
 
 					.${gh_close}:hover {
@@ -1390,6 +1393,7 @@
 
 				var self = this;
 
+				active_errors.push(msg);
 				main_container.append(
 					$("<div>", { class: `${gh_notification} ${gh_error}` }).append(
 						$("<button>", { class: gh_close}).append(
