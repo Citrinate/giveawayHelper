@@ -27,7 +27,7 @@ This script enhances a number of Steam Key Giveaway Sites by making certain requ
     <tr><td>Gleam.io (<a href="https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/images/gleam.png">preview</a>)</td><td align="center">✔</td><td align="center">✔</td><td align="center">✔</td></tr>
     <tr><td>Indiegala</td><td align="center">✔</td><td></td><td></td></tr>
     <tr><td>Key Champions</td><td align="center">✔</td><td></td><td></td></tr>
-    <tr><td>Marvelousga</td><td align="center">✔</td><td></td><td></td></tr>
+    <tr><td>Marvelousga</td><td align="center">✔</td><td></td><td align="center">✔</td></tr>
     <tr><td>Simplo.gg</td><td align="center">✔</td><td></td><td></td></tr>
     <tr><td>Who's Gaming Now?!</td><td align="center">✔</td><td></td><td></td></tr>
   </tbody>

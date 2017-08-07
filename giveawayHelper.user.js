@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.0.11
+// @version 2.0.12
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.getkeys.net/giveaway.php*
@@ -74,6 +74,12 @@
 			 *			For use with basicHelper.  Used to correct instances where the script's UI blocks parts of a
 			 *			site.  Offsets the UI by X number of pixels in the order of [top, left, right].
 			 *			Directions that shouldn't be offset should be set to 0.
+			 *
+			 *		requires: An object: {twitch: Boolean}
+			 *			For use with basicHelper.  Some sites may have links asking you to follow a twitch channel, but
+			 *			don't verify that you've done so.  In these cases there's no need to display a "follow/unfollow"
+			 *			button.  For sites that do verify, set the value to true.
+			 *
 			 */
 			run: function() {
 				var found = false,
@@ -126,7 +132,8 @@
 						{
 							hostname: ["marvelousga.com"],
 							helper: basicHelper,
-							cache: false
+							cache: false,
+							requires: {twitch: true}
 						},
 						{
 							hostname: ["simplo.gg"],
@@ -180,7 +187,7 @@
 							}
 
 							giveawayHelperUI.loadUI();
-							site.helper.init(site.cache, site.cache_id, site.offset);
+							site.helper.init(site.cache, site.cache_id, site.offset, site.requires);
 						}
 					}
 				}
@@ -375,7 +382,7 @@
 			/**
 			 *
 			 */
-			init: function(do_cache, cache_id, offset) {
+			init: function(do_cache, cache_id, offset, requires) {
 				if(typeof do_cache !== "undefined" && do_cache) {
 					if(typeof cache_id === "undefined") {
 						cache_id = document.location.hostname + document.location.pathname + document.location.search;
@@ -385,7 +392,19 @@
 				}
 
 				giveawayHelperUI.defaultButtonSetup(offset);
+
+				// Add Steam buttons
 				SteamHandler.getInstance().findGroups(giveawayHelperUI.addButton, true, do_cache, cache_id);
+
+				if(requires.twitch === true) {
+					// Add Twitch buttons
+					TwitchHandler.getInstance().findChannels(
+						giveawayHelperUI.addButton,
+						true,
+						do_cache,
+						`twitch_${cache_id}`
+					);
+				}
 			},
 		};
 	})();
@@ -586,20 +605,6 @@
 				});
 			}
 
-			/**
-			 * Some sites remove links to a group after you get your reward, remember which groups we've seen where
-			 */
-			function cacheGroup(groups, id) {
-				GM_setValue(id, JSON.stringify(groups));
-			}
-
-			/**
-			 *
-			 */
-			function restoreCachedGroups(id) {
-				return JSON.parse(GM_getValue(id, JSON.stringify([])));
-			}
-
 			return {
 				/**
 				 *
@@ -619,12 +624,11 @@
 				},
 
 				/**
-				 * http://steamcommunity.com/gid/[g:1:11717092] the :1: can be replaced with any number
-				 * http://steamcommunity.com/gid/11717092
+				 *
 				 */
 				findGroups: function(button_callback, show_name, do_cache, cache_id) {
 					var re = /steamcommunity\.com\/groups\/([a-zA-Z0-9\-\_]{2,32})/g,
-						groups = do_cache ? restoreCachedGroups(cache_id) : [],
+						groups = do_cache ? giveawayHelperUI.restoreCachedLinks(cache_id) : [],
 						match;
 
 					while((match = re.exec($("body").html())) !== null) {
@@ -632,10 +636,10 @@
 					}
 
 					groups = giveawayHelperUI.removeDuplicates(groups);
-					if(do_cache) cacheGroup(groups, cache_id);
+					if(do_cache) giveawayHelperUI.cacheLinks(groups, cache_id);
 
-					for(var i = 0; i< groups.length; i++) {
-						SteamHandler.getInstance().handleEntry({ group_name: groups[i] }, button_callback, show_name);
+					for(var i = 0; i < groups.length; i++) {
+						this.handleEntry({ group_name: groups[i] }, button_callback, show_name);
 					}
 				}
 			};
@@ -968,6 +972,7 @@
 				user_handle = null,
 				api_token = null,
 				button_count = 1,
+				following_status = {},
 				ready_a = false;
 				ready_b = false;
 
@@ -1004,9 +1009,9 @@
 			function prepCreateButton(twitch_handle, button_callback, ready_check, show_name, expected_user) {
 				// Wait until the entry is completed before showing the button
 				var temp_interval = setInterval(function() {
-					if(ready_check()) {
+					if(ready_check === null || ready_check()) {
 						clearInterval(temp_interval);
-						createButton(twitch_handle, button_callback, show_name, expected_user);
+						createButton(twitch_handle, button_callback, show_name, expected_user, ready_check === null);
 					}
 				}, 100);
 			}
@@ -1014,36 +1019,52 @@
 			/**
 			 * Create the button
 			 */
-			function createButton(twitch_handle, button_callback, show_name, expected_user) {
-				if(!expected_user) {
+			function createButton(twitch_handle, button_callback, show_name, expected_user, toggle_button) {
+				if(typeof expected_user !== "undefined" && !expected_user) {
 					// The user doesn't have a Twitter account linked, do nothing
 				} else if(user_handle === null || api_token === null) {
 					// We're not logged in
 					giveawayHelperUI.showError(`You must be logged into
 						<a href="https://www.twitch.tv/login" target="_blank">twitch.tv</a>`);
-				} else if(expected_user.user_handle != user_handle) {
+				} else if(typeof expected_user !== "undefined" && expected_user.user_handle != user_handle) {
 					// We're logged in as the wrong user
 					giveawayHelperUI.showError(`You must be logged into the Twitch account linked to Gleam.io:
 						<a href="https://twitch.tv/${expected_user.user_handle}" target="_blank">
 						https://twitch.tv/${expected_user.user_handle}</a>`);
 				} else {
 					// Create the button
-					var button_id = "twitch_button_" + button_count++,
-						label = `Unfollow${(show_name ? ` ${twitch_handle}` : "")}`;
+					var button_id = "twitch_button_" + button_count++;
 
-					button_callback(
-						giveawayHelperUI.buildButton(button_id, label, false, function() {
-							giveawayHelperUI.removeButton(button_id);
-							deleteTwitchFollow(twitch_handle);
-						})
-					);
+					if(toggle_button) {
+						getTwitchUserData(twitch_handle, function(is_following) {
+							var label = is_following ? `Unfollow ${twitch_handle}` : `Follow ${twitch_handle}`;
+
+							following_status[twitch_handle] = is_following;
+
+							button_callback(
+								giveawayHelperUI.buildButton(button_id, label, is_following, function() {
+									toggleFollowStatus(button_id, twitch_handle);
+									giveawayHelperUI.showButtonLoading(button_id);
+								})
+							);
+						});
+					} else {
+						var label = `Unfollow${(show_name ? ` ${twitch_handle}` : "")}`;
+
+						button_callback(
+							giveawayHelperUI.buildButton(button_id, label, false, function() {
+								giveawayHelperUI.removeButton(button_id);
+								deleteTwitchFollow(twitch_handle);
+							})
+						);
+					}
 				}
 			}
 
 			/**
 			 *
 			 */
-			function deleteTwitchFollow(twitch_handle) {
+			function deleteTwitchFollow(twitch_handle, callback) {
 				GM_xmlhttpRequest({
 					url: "https://api.twitch.tv/kraken/users/" + user_handle + "/follows/channels/" + twitch_handle,
 					method: "DELETE",
@@ -1052,9 +1073,81 @@
 						if(response.status != 204 && response.status != 200) {
 							giveawayHelperUI.showError(`Failed to unfollow Twitch user:
 								<a href="https://twitch.tv/${twitch_handle}" target="_blank">${twitch_handle}</a>`);
+
+							callback(false);
+						} else {
+							callback(true);
 						}
 					}
 				});
+			}
+
+			/**
+			 *
+			 */
+			function twitchFollow(twitch_handle, callback) {
+				GM_xmlhttpRequest({
+					url: "https://api.twitch.tv/kraken/users/" + user_handle + "/follows/channels/" + twitch_handle,
+					method: "PUT",
+					headers: { "Authorization": "OAuth " + api_token },
+					onload: function(response) {
+						if(response.status != 204 && response.status != 200) {
+							giveawayHelperUI.showError(`Failed to follow Twitch user:
+								<a href="https://twitch.tv/${twitch_handle}" target="_blank">${twitch_handle}</a>`);
+
+							callback(false);
+						} else {
+							callback(true);
+						}
+					}
+				});
+			}
+
+			/**
+			 * @return {Boolean} is_follow - True for "following", false for "not following"
+			 */
+			function getTwitchUserData(twitch_handle, callback) {
+				GM_xmlhttpRequest({
+					url: "https://api.twitch.tv/kraken/users/" + user_handle + "/follows/channels/" + twitch_handle,
+					method: "GET",
+					headers: { "Authorization": "OAuth " + api_token },
+					onload: function(response) {
+						if(response.status === 404) {
+							callback(false);
+						} else if(response.status != 204 && response.status != 200) {
+							giveawayHelperUI.showError(`Failed to determine follow status of Twtich user`);
+						} else {
+							callback(true);
+						}
+					}
+				});
+			}
+
+			/**
+			 *
+			 */
+			function toggleFollowStatus(button_id, twitch_handle) {
+				if(following_status[twitch_handle]) {
+					deleteTwitchFollow(twitch_handle, function(success) {
+						if(success) {
+							following_status[twitch_handle] = false;
+							giveawayHelperUI.toggleButtonClass(button_id);
+							giveawayHelperUI.setButtonLabel(button_id, `Follow ${twitch_handle}`);
+						}
+
+						giveawayHelperUI.hideButtonLoading(button_id);
+					});
+				} else {
+					twitchFollow(twitch_handle, function(success) {
+						if(success) {
+							following_status[twitch_handle] = true;
+							giveawayHelperUI.toggleButtonClass(button_id);
+							giveawayHelperUI.setButtonLabel(button_id, `Unfollow ${twitch_handle}`);
+						}
+
+						giveawayHelperUI.hideButtonLoading(button_id);
+					});
+				}
 			}
 
 			return {
@@ -1072,6 +1165,26 @@
 								prepCreateButton(twitch_handle, button_callback, ready_check, show_name, expected_user);
 							}
 						}, 100);
+					}
+				},
+
+				/**
+				 *
+				 */
+				findChannels: function(button_callback, show_name, do_cache, cache_id) {
+					var re = /twitch\.tv\/([a-zA-Z0-9_]{2,25})/g,
+						channels = do_cache ? restoreCachedGroups(cache_id) : [],
+						match;
+
+					while((match = re.exec($("body").html())) !== null) {
+						channels.push(match[1].toLowerCase());
+					}
+
+					channels = giveawayHelperUI.removeDuplicates(channels);
+					if(do_cache) cacheGroup(channels, cache_id);
+
+					for(var i = 0; i < channels.length; i++) {
+						this.handleEntry(channels[i], button_callback, null, show_name);
 					}
 				}
 			};
@@ -1427,6 +1540,20 @@
 				}
 
 				return out;
+			},
+
+			/**
+			 * Some sites remove links to a group after you get your reward, remember which links we've seen where
+			 */
+			cacheLinks: function(data, id) {
+				GM_setValue(id, JSON.stringify(data));
+			},
+
+			/**
+			 *
+			 */
+			restoreCachedLinks: function(id) {
+				return JSON.parse(GM_getValue(id, JSON.stringify([])));
 			}
 		};
 	})();
