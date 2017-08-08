@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.0.12
+// @version 2.0.13
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.getkeys.net/giveaway.php*
@@ -389,6 +389,8 @@
 					}
 
 					cache_id = `cache_${CryptoJS.MD5(cache_id)}`;
+				} else {
+					do_cache = false;
 				}
 
 				giveawayHelperUI.defaultButtonSetup(offset);
@@ -396,14 +398,16 @@
 				// Add Steam buttons
 				SteamHandler.getInstance().findGroups(giveawayHelperUI.addButton, true, do_cache, cache_id);
 
-				if(requires.twitch === true) {
-					// Add Twitch buttons
-					TwitchHandler.getInstance().findChannels(
-						giveawayHelperUI.addButton,
-						true,
-						do_cache,
-						`twitch_${cache_id}`
-					);
+				if(typeof requires !== "undefined") {
+					if(typeof requires.twitch !== "undefined" && requires.twitch === true) {
+						// Add Twitch buttons
+						TwitchHandler.getInstance().findChannels(
+							giveawayHelperUI.addButton,
+							true,
+							do_cache,
+							`twitch_${cache_id}`
+						);
+					}
 				}
 			},
 		};
@@ -1237,7 +1241,7 @@
 		 */
 		function updateTopMargin() {
 			$("html").css("margin-top",
-				main_container.is(":visible") ? (main_container.outerHeight() + main_container.offset().top) : 0
+				main_container.is(":visible") ? (main_container.outerHeight() + main_container.position().top) : 0
 			);
 		}
 
