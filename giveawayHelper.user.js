@@ -3,10 +3,11 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.0.13
+// @version 2.1.0
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.getkeys.net/giveaway.php*
+// @match *://*.ghame.ru/*
 // @match *://*.giftybundle.com/giveaway.php*
 // @match *://*.giveawayhopper.com/giveaway.php*
 // @match *://*.gleam.io/*
@@ -14,6 +15,7 @@
 // @match *://*.keychampions.net/view.php?gid=*
 // @match *://*.marvelousga.com/giveaway.php*
 // @match *://*.marvelousga.com/raffle.php*
+// @match *://*.prys.ga/giveaway/?id=*
 // @match *://*.simplo.gg/index.php?giveaway=*
 // @match *://*.whosgamingnow.net/giveaway/*
 // @connect steamcommunity.com
@@ -45,7 +47,7 @@
 			/**
 			 * Determine what to do for this page based on what's defined in the "config" variable
 			 *
-			 * 		hostname: An array of strings
+			 * 		hostname: A string
 			 *			The hostname of the site we're setting the config for. Must be the same as what's defined
 			 *			as @match in the metadata block above.
 			 *
@@ -85,38 +87,43 @@
 				var found = false,
 					config = [
 						{
-							hostname: ["chubbykeys.com", "www.chubbykeys.com"],
+							hostname: "chubbykeys.com",
 							helper: basicHelper,
 							cache: false
 						},
 						{
-							hostname: ["dogebundle.com", "www.dogebundle.com"],
+							hostname: "dogebundle.com",
 							helper: basicHelper,
 							cache: true,
 							offset: [50, 0, 0]
 						},
 						{
-							hostname: ["getkeys.net", "www.getkeys.net"],
+							hostname: "getkeys.net",
 							helper: basicHelper,
 							cache: false
 						},
 						{
-							hostname: ["giftybundle.com", "www.giftybundle.com"],
+							hostname: "ghame.ru",
 							helper: basicHelper,
 							cache: false
 						},
 						{
-							hostname: ["giveawayhopper.com"],
+							hostname: "giftybundle.com",
 							helper: basicHelper,
 							cache: false
 						},
 						{
-							hostname: ["gleam.io"],
+							hostname: "giveawayhopper.com",
+							helper: basicHelper,
+							cache: false
+						},
+						{
+							hostname: "gleam.io",
 							helper: gleamHelper,
 							cache: false
 						},
 						{
-							hostname: ["www.indiegala.com"],
+							hostname: "indiegala.com",
 							helper: basicHelper,
 							domMatch: [".giveaway-header"],
 							urlMatch: [/givmessage/],
@@ -124,24 +131,30 @@
 							offset: [0, 260, 0]
 						},
 						{
-							hostname: ["keychampions.net", "www.keychampions.net"],
+							hostname: "keychampions.net",
 							helper: basicHelper,
 							cache: true,
 							offset: [0, 120, 0]
 						},
 						{
-							hostname: ["marvelousga.com"],
+							hostname: "marvelousga.com",
 							helper: basicHelper,
 							cache: false,
 							requires: {twitch: true}
 						},
 						{
-							hostname: ["simplo.gg"],
+							hostname: "prys.ga",
+							helper: basicHelper,
+							cache: false,
+							offset: [50, 0, 0]
+						},
+						{
+							hostname: "simplo.gg",
 							helper: basicHelper,
 							cache: true
 						},
 						{
-							hostname: ["whosgamingnow.net", "www.whosgamingnow.net"],
+							hostname: "whosgamingnow.net",
 							helper:
 							basicHelper,
 							cache: true
@@ -151,44 +164,42 @@
 				for(var i = 0; i < config.length; i++) {
 					var site = config[i];
 
-					for(var j = 0; j < site.hostname.length; j++) {
-						if(document.location.hostname == site.hostname[j]) {
-							found = true;
+					if(document.location.hostname.split(".").splice(-2).join(".") == site.hostname) {
+						found = true;
 
-							// determine whether to run the script based on the content of the page
-							if(typeof site.domMatch !== "undefined" ||
-								typeof site.urlMatch !== "undefined"
-							) {
-								var match_found = false;
+						// determine whether to run the script based on the content of the page
+						if(typeof site.domMatch !== "undefined" ||
+							typeof site.urlMatch !== "undefined"
+						) {
+							var match_found = false;
 
-								// check the DOM for matches as defined by domMatch
-								if(typeof site.domMatch !== "undefined") {
-									for(var k = 0; k < site.domMatch.length; k++) {
-										if($(site.domMatch[k]).length !== 0) {
-											match_found = true;
-											break;
-										}
+							// check the DOM for matches as defined by domMatch
+							if(typeof site.domMatch !== "undefined") {
+								for(var k = 0; k < site.domMatch.length; k++) {
+									if($(site.domMatch[k]).length !== 0) {
+										match_found = true;
+										break;
 									}
 								}
-
-								// check the URL for matches as defined by urlMatch
-								if(typeof site.urlMatch !== "undefined") {
-									for(var l = 0; l < site.urlMatch.length; l++) {
-										var reg = new RegExp(site.urlMatch[l]);
-
-										if(reg.test(location.href)) {
-											match_found = true;
-											break;
-										}
-									}
-								}
-
-								if(!match_found) break;
 							}
 
-							giveawayHelperUI.loadUI();
-							site.helper.init(site.cache, site.cache_id, site.offset, site.requires);
+							// check the URL for matches as defined by urlMatch
+							if(typeof site.urlMatch !== "undefined") {
+								for(var l = 0; l < site.urlMatch.length; l++) {
+									var reg = new RegExp(site.urlMatch[l]);
+
+									if(reg.test(location.href)) {
+										match_found = true;
+										break;
+									}
+								}
+							}
+
+							if(!match_found) break;
 						}
+
+						giveawayHelperUI.loadUI();
+						site.helper.init(site.cache, site.cache_id, site.offset, site.requires);
 					}
 				}
 
@@ -395,20 +406,23 @@
 
 				giveawayHelperUI.defaultButtonSetup(offset);
 
-				// Add Steam buttons
-				SteamHandler.getInstance().findGroups(giveawayHelperUI.addButton, true, do_cache, cache_id);
+				// Some sites load the giveaway data dynamically.  Check every second for changes
+				setInterval(function() {
+					// Add Steam buttons
+					SteamHandler.getInstance().findGroups(giveawayHelperUI.addButton, true, do_cache, cache_id);
 
-				if(typeof requires !== "undefined") {
-					if(typeof requires.twitch !== "undefined" && requires.twitch === true) {
-						// Add Twitch buttons
-						TwitchHandler.getInstance().findChannels(
-							giveawayHelperUI.addButton,
-							true,
-							do_cache,
-							`twitch_${cache_id}`
-						);
+					if(typeof requires !== "undefined") {
+						if(typeof requires.twitch !== "undefined" && requires.twitch === true) {
+							// Add Twitch buttons
+							TwitchHandler.getInstance().findChannels(
+								giveawayHelperUI.addButton,
+								true,
+								do_cache,
+								`twitch_${cache_id}`
+							);
+						}
 					}
-				}
+				}, 1000);
 			},
 		};
 	})();
@@ -418,7 +432,9 @@
 	 */
 	var SteamHandler = (function() {
 		function init() {
-			var user_id = null,
+			var re_group_name = /steamcommunity\.com\/groups\/([a-zA-Z0-9\-\_]{2,32})/g,
+				re_group_id = /steamcommunity.com\/gid\/(([0-9]+)|\[g:[0-9]:([0-9]+)\])/g,
+				user_id = null,
 				session_id = null,
 				process_url = null,
 				active_groups = [],
@@ -453,12 +469,23 @@
 			/**
 			 *
 			 */
-			function prepCreateButton(group_data, button_callback, show_name, expected_user)
-			{
+			function prepCreateButton(group_data, button_callback, show_name, expected_user) {
 				if(typeof group_data.group_id == "undefined") {
+					// Group ID is missing
 					getGroupID(group_data.group_name, function(group_id) {
 						group_data.group_id = group_id;
 						createButton(group_data, button_callback, show_name, expected_user);
+					});
+				} else if(typeof group_data.group_name == "undefined") {
+					// Group name is missing
+					getGroupName(group_data.group_id, function(group_name) {
+						group_data.group_name = group_name;
+
+						// Fetch a separate numeric group id that we'll need
+						getGroupID(group_data.group_name, function(group_id) {
+							group_data.group_id = group_id;
+							createButton(group_data, button_callback, show_name, expected_user);
+						});
 					});
 				} else {
 					createButton(group_data, button_callback, show_name, expected_user);
@@ -609,6 +636,23 @@
 				});
 			}
 
+			/**
+			 * Get the name for a Steam group given the numeric ID
+			 */
+			function getGroupName(group_id, callback) {
+				GM_xmlhttpRequest({
+					url: "https://steamcommunity.com/gid/" + group_id,
+					method: "GET",
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+					onload: function(response) {
+						var group_name = response.finalUrl.match(/steamcommunity\.com\/groups\/([a-zA-Z0-9\-\_]{2,32})/);
+						group_name = group_name === null ? null : group_name[1];
+
+						callback(group_name.toLowerCase());
+					}
+				});
+			}
+
 			return {
 				/**
 				 *
@@ -627,23 +671,54 @@
 					}
 				},
 
+				handled_group_names: [],
+				handled_group_ids: [],
+
 				/**
 				 *
 				 */
 				findGroups: function(button_callback, show_name, do_cache, cache_id) {
-					var re = /steamcommunity\.com\/groups\/([a-zA-Z0-9\-\_]{2,32})/g,
-						groups = do_cache ? giveawayHelperUI.restoreCachedLinks(cache_id) : [],
+					var group_names = do_cache ? restoreCachedGroups(cache_id) : [],
+						group_ids = do_cache ? restoreCachedGroups(cache_id + "_ids") : [],
 						match;
 
-					while((match = re.exec($("body").html())) !== null) {
-						groups.push(match[1].toLowerCase());
+					// Look for any links containing steam group names
+					while((match = re_group_name.exec($("body").html())) !== null) {
+						group_names.push(match[1].toLowerCase());
 					}
 
-					groups = giveawayHelperUI.removeDuplicates(groups);
-					if(do_cache) giveawayHelperUI.cacheLinks(groups, cache_id);
+					// Look for any links containing steam group ids
+					while((match = re_group_id.exec($("body").html())) !== null) {
+						if(typeof match[2] !== "undefined") {
+							group_ids.push(match[2].toLowerCase());
+						} else {
+							group_ids.push(match[3].toLowerCase());
+						}
+					}
 
-					for(var i = 0; i < groups.length; i++) {
-						this.handleEntry({ group_name: groups[i] }, button_callback, show_name);
+					group_names = giveawayHelperUI.removeDuplicates(group_names);
+					group_ids = giveawayHelperUI.removeDuplicates(group_ids);
+
+					// Cache the results
+					if(do_cache) {
+						cacheGroup(group_names, cache_id);
+						cacheGroup(group_ids, cache_id + "_ids");
+					}
+
+					// Create the buttons
+					for(var i = 0; i < group_names.length; i++) {
+						if($.inArray(group_names[i], this.handled_group_names) == -1) {
+							this.handled_group_names.push(group_names[i]);
+							this.handleEntry({ group_name: group_names[i] }, button_callback, show_name);
+						}
+					}
+
+
+					for(var j = 0; j < group_ids.length; j++) {
+						if($.inArray(group_ids[i], this.handled_group_ids) == -1) {
+							this.handled_group_ids.push(group_ids[i]);
+							this.handleEntry({ group_id: group_ids[j] }, button_callback, show_name);
+						}
 					}
 				}
 			};
@@ -1172,6 +1247,8 @@
 					}
 				},
 
+				handled_channels: [],
+
 				/**
 				 *
 				 */
@@ -1188,7 +1265,10 @@
 					if(do_cache) cacheGroup(channels, cache_id);
 
 					for(var i = 0; i < channels.length; i++) {
-						this.handleEntry(channels[i], button_callback, null, show_name);
+						if($.inArray(channels[i], this.handled_channels) == -1) {
+							this.handled_channels.push(channels[i]);
+							this.handleEntry(channels[i], button_callback, null, show_name);
+						}
 					}
 				}
 			};
