@@ -3,9 +3,10 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.1.0
+// @version 2.2.0
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
+// @match *://*.embloo.net/task/*
 // @match *://*.getkeys.net/giveaway.php*
 // @match *://*.ghame.ru/*
 // @match *://*.giftybundle.com/giveaway.php*
@@ -96,6 +97,11 @@
 							helper: basicHelper,
 							cache: true,
 							offset: [50, 0, 0]
+						},
+						{
+							hostname: "embloo.net",
+							helper: basicHelper,
+							cache: true
 						},
 						{
 							hostname: "getkeys.net",
@@ -678,8 +684,8 @@
 				 *
 				 */
 				findGroups: function(button_callback, show_name, do_cache, cache_id) {
-					var group_names = do_cache ? restoreCachedGroups(cache_id) : [],
-						group_ids = do_cache ? restoreCachedGroups(cache_id + "_ids") : [],
+					var group_names = do_cache ? giveawayHelperUI.restoreCachedLinks(cache_id) : [],
+						group_ids = do_cache ? giveawayHelperUI.restoreCachedLinks(cache_id + "_ids") : [],
 						match;
 
 					// Look for any links containing steam group names
@@ -701,8 +707,8 @@
 
 					// Cache the results
 					if(do_cache) {
-						cacheGroup(group_names, cache_id);
-						cacheGroup(group_ids, cache_id + "_ids");
+						giveawayHelperUI.cacheLinks(group_names, cache_id);
+						giveawayHelperUI.cacheLinks(group_ids, cache_id + "_ids");
 					}
 
 					// Create the buttons
@@ -1254,7 +1260,7 @@
 				 */
 				findChannels: function(button_callback, show_name, do_cache, cache_id) {
 					var re = /twitch\.tv\/([a-zA-Z0-9_]{2,25})/g,
-						channels = do_cache ? restoreCachedGroups(cache_id) : [],
+						channels = do_cache ? giveawayHelperUI.restoreCachedLinks(cache_id) : [],
 						match;
 
 					while((match = re.exec($("body").html())) !== null) {
@@ -1262,7 +1268,7 @@
 					}
 
 					channels = giveawayHelperUI.removeDuplicates(channels);
-					if(do_cache) cacheGroup(channels, cache_id);
+					if(do_cache) giveawayHelperUI.cacheLinks(channels, cache_id);
 
 					for(var i = 0; i < channels.length; i++) {
 						if($.inArray(channels[i], this.handled_channels) == -1) {
