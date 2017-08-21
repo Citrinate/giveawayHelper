@@ -3,9 +3,10 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.2.0
+// @version 2.3.0
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
+// @match *://*.dupedornot.com/giveaway.php*
 // @match *://*.embloo.net/task/*
 // @match *://*.getkeys.net/giveaway.php*
 // @match *://*.ghame.ru/*
@@ -97,6 +98,12 @@
 							helper: basicHelper,
 							cache: true,
 							offset: [50, 0, 0]
+						},
+						{
+							hostname: "dupedornot.com",
+							helper: basicHelper,
+							cache: false,
+							requires: {twitch: true}
 						},
 						{
 							hostname: "embloo.net",
