@@ -33,6 +33,7 @@ This script enhances a number of Steam Key Giveaway Sites by making certain requ
     <tr><td>Marvelousga</td><td align="center">✔</td><td></td><td align="center">✔</td></tr>
     <tr><td>Prys.ga</td><td align="center">✔</td><td></td><td></td></tr>
     <tr><td>Simplo.gg</td><td align="center">✔</td><td></td><td></td></tr>
+    <tr><td>Treasure Giveaways</td><td align="center">✔</td><td></td><td></td></tr>
     <tr><td>Who's Gaming Now?!</td><td align="center">✔</td><td></td><td></td></tr>
   </tbody>
 </table>
