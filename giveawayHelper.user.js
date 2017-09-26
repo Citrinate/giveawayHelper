@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.4.1
+// @version 2.4.2
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.dupedornot.com/giveaway.php*
@@ -24,7 +24,7 @@
 // @connect steamcommunity.com
 // @connect twitter.com
 // @connect twitch.tv
-// @match https://dev.twitter.com/
+// @match https://syndication.twitter.com/
 // @match https://player.twitch.tv/
 // @grant GM_getValue
 // @grant GM_setValue
@@ -758,8 +758,8 @@
 	 */
 	var TwitterHandler = (function() {
 		function init() {
-			var command_hub_url = "https://dev.twitter.com/",
-				command_hub_host = "dev.twitter.com",
+			var command_hub_url = "https://syndication.twitter.com/",
+				command_hub_host = "syndication.twitter.com",
 				auth_token = null,
 				csrf_token = null,
 				user_handle = null,
