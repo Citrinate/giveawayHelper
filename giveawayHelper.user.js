@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.4.2
+// @version 2.4.3
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.dupedornot.com/giveaway.php*
@@ -114,7 +114,9 @@
 						{
 							hostname: "getkeys.net",
 							helper: basicHelper,
-							cache: false
+							cache: false,
+							requires: {twitch: true},
+							offset: [60, 0, 0]
 						},
 						{
 							hostname: "ghame.ru",
