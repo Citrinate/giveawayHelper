@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.4.3
+// @version 2.5.0
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.dupedornot.com/giveaway.php*
@@ -13,12 +13,14 @@
 // @match *://*.giftybundle.com/giveaway.php*
 // @match *://*.giveawayhopper.com/giveaway.php*
 // @match *://*.gleam.io/*
+// @match *://*.hrkgame.com/en/giveaway/get-free-game/
 // @match *://*.indiegala.com/*
 // @match *://*.keychampions.net/view.php?gid=*
 // @match *://*.marvelousga.com/giveaway.php*
 // @match *://*.marvelousga.com/raffle.php*
 // @match *://*.prys.ga/giveaway/?id=*
 // @match *://*.simplo.gg/index.php?giveaway=*
+// @match *://*.steamfriends.info/free-steam-key/
 // @match *://*.treasuregiveaways.com/*.php*
 // @match *://*.whosgamingnow.net/giveaway/*
 // @connect steamcommunity.com
@@ -139,6 +141,11 @@
 							cache: false
 						},
 						{
+							hostname: "hrkgame.com",
+							helper: basicHelper,
+							cache: false
+						},
+						{
 							hostname: "indiegala.com",
 							helper: basicHelper,
 							domMatch: [".giveaway-header"],
@@ -168,6 +175,11 @@
 							hostname: "simplo.gg",
 							helper: basicHelper,
 							cache: true
+						},
+						{
+							hostname: "steamfriends.info",
+							helper: basicHelper,
+							cache: false
 						},
 						{
 							hostname: "treasuregiveaways.com",
