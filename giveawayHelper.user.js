@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.5.1
+// @version 2.6.0
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.dupedornot.com/giveaway.php*
@@ -298,6 +298,18 @@
 		}
 
 		/**
+		 *
+		 */
+		function handleReward() {
+			var temp_interval = setInterval(function() {
+				if(gleam.bestCouponCode() !== null) {
+					clearInterval(temp_interval);
+					SteamHandler.getInstance().findKeys(addRedeemButton, gleam.bestCouponCode(), false);
+				}
+			}, 100);
+		}
+
+		/**
 		 * Places the button onto the page
 		 */
 		function addButton(entry_element) {
@@ -305,6 +317,14 @@
 				new_button.addClass("btn btn-embossed btn-info");
 				$(entry_element).find(">a").first().append(new_button);
 			};
+		}
+
+		/**
+		 *
+		 */
+		function addRedeemButton(new_button) {
+			new_button.addClass("btn btn-embossed btn-success");
+			$(".redeem-container").first().after(new_button);
 		}
 
 		/**
@@ -389,6 +409,11 @@
 						top: 0px;
 						z-index: 9999999999;
 					}
+
+					.${giveawayHelperUI.gh_redeem_button} {
+						margin-bottom: 32px;
+						position: static;
+					}
 				`);
 
 				// Show exact end date when hovering over any times
@@ -407,6 +432,7 @@
 							if(typeof gleam.campaign.entry_count !== "undefined") {
 								clearInterval(another_temp_interval);
 								checkAuthentications();
+								handleReward();
 
 								if(!gleam.showPromotionEnded()) {
 									handleEntries();
@@ -444,6 +470,8 @@
 				setInterval(function() {
 					// Add Steam buttons
 					SteamHandler.getInstance().findGroups(giveawayHelperUI.addButton, true, do_cache, cache_id);
+					// Add Steam Key redeem buttons
+					SteamHandler.getInstance().findKeys(giveawayHelperUI.addButton, $("body").html(), true);
 
 					if(typeof requires !== "undefined") {
 						if(typeof requires.twitch !== "undefined" && requires.twitch === true) {
@@ -468,11 +496,16 @@
 		function init() {
 			var re_group_name = /steamcommunity\.com\/groups\/([a-zA-Z0-9\-\_]{2,32})/g,
 				re_group_id = /steamcommunity.com\/gid\/(([0-9]+)|\[g:[0-9]:([0-9]+)\])/g,
+				re_steam_key = /([A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5})/g,
+				redeem_key_url = "https://store.steampowered.com/account/registerkey?key=",
 				user_id = null,
 				session_id = null,
 				process_url = null,
 				active_groups = [],
 				button_count = 1,
+				handled_group_names = [],
+				handled_group_ids = [],
+				handled_keys = [],
 				ready = false;
 
 			// Get all the user data we'll need to make join/leave group requests
@@ -687,6 +720,16 @@
 				});
 			}
 
+			/**
+			 *
+			 */
+			function redeemKey(key) {
+				return function() {
+					var win = window.open(`${redeem_key_url}${key}`, "_blank");
+					win.focus();
+				};
+			}
+
 			return {
 				/**
 				 *
@@ -704,9 +747,6 @@
 						}, 100);
 					}
 				},
-
-				handled_group_names: [],
-				handled_group_ids: [],
 
 				/**
 				 *
@@ -741,17 +781,42 @@
 
 					// Create the buttons
 					for(var i = 0; i < group_names.length; i++) {
-						if($.inArray(group_names[i], this.handled_group_names) == -1) {
-							this.handled_group_names.push(group_names[i]);
+						if($.inArray(group_names[i], handled_group_names) == -1) {
+							handled_group_names.push(group_names[i]);
 							this.handleEntry({ group_name: group_names[i] }, button_callback, show_name);
 						}
 					}
 
 
 					for(var j = 0; j < group_ids.length; j++) {
-						if($.inArray(group_ids[i], this.handled_group_ids) == -1) {
-							this.handled_group_ids.push(group_ids[i]);
+						if($.inArray(group_ids[i], handled_group_ids) == -1) {
+							handled_group_ids.push(group_ids[i]);
 							this.handleEntry({ group_id: group_ids[j] }, button_callback, show_name);
+						}
+					}
+				},
+
+				/**
+				 *
+				 */
+				findKeys: function(button_callback, target, show_key) {
+					var keys = [],
+						match;
+
+					while((match = re_steam_key.exec(target)) !== null) {
+						keys.push(match[1]);
+					}
+
+					for(var i = 0; i < keys.length; i++) {
+						if($.inArray(keys[i], handled_keys) == -1) {
+							var steam_key = keys[i],
+								button_id = 'redeem_' + handled_keys.length,
+								label = show_key ? `Redeem ${steam_key}` : "Redeem Key";
+
+							handled_keys.push(steam_key);
+							button_callback(
+								giveawayHelperUI.buildButton(button_id, label, "redeem", redeemKey(steam_key))
+							);
 						}
 					}
 				}
@@ -1086,6 +1151,7 @@
 				api_token = null,
 				button_count = 1,
 				following_status = {},
+				handled_channels = [],
 				ready_a = false;
 				ready_b = false;
 
@@ -1281,8 +1347,6 @@
 					}
 				},
 
-				handled_channels: [],
-
 				/**
 				 *
 				 */
@@ -1299,8 +1363,8 @@
 					if(do_cache) giveawayHelperUI.cacheLinks(channels, cache_id);
 
 					for(var i = 0; i < channels.length; i++) {
-						if($.inArray(channels[i], this.handled_channels) == -1) {
-							this.handled_channels.push(channels[i]);
+						if($.inArray(channels[i], handled_channels) == -1) {
+							handled_channels.push(channels[i]);
 							this.handleEntry(channels[i], button_callback, null, show_name);
 						}
 					}
@@ -1363,6 +1427,7 @@
 			gh_button: randomString(10),
 			gh_button_on: randomString(10),
 			gh_button_off: randomString(10),
+			gh_redeem_button: randomString(10),
 
 			/**
 			 * Print the UI
@@ -1526,6 +1591,12 @@
 						border-color: #ac2925;
 						color: #fff;
 					}
+
+					.${this.gh_redeem_button} {
+						background-color: #5cb85c;
+						border-color: #4cae4c;
+						color: #fff;
+					}
 				`);
 
 				if(typeof offset !== "undefined") {
@@ -1554,9 +1625,11 @@
 			 *
 			 */
 			buildButton: function(button_id, label, button_on, click_function) {
-				var new_button =
+				var button_class = button_on === "redeem" ? this.gh_redeem_button
+						: (button_on ? this.gh_button_on : this.gh_button_off);
+					new_button =
 						$("<button>", { type: "button",
-							class: `${this.gh_button} ${button_on ? this.gh_button_on : this.gh_button_off}`
+							class: `${this.gh_button} ${button_class}`
 						}).append(
 							$("<span>").append(label)).append(
 							$("<span>", { class: gh_button_loading, css: { display: "none" }})
