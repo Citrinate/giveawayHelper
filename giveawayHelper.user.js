@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.6.0
+// @version 2.6.1
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.dupedornot.com/giveaway.php*
@@ -323,7 +323,7 @@
 		 *
 		 */
 		function addRedeemButton(new_button) {
-			new_button.addClass("btn btn-embossed btn-success");
+			new_button.find("button").first().addClass("btn btn-embossed btn-success");
 			$(".redeem-container").first().after(new_button);
 		}
 
@@ -720,16 +720,6 @@
 				});
 			}
 
-			/**
-			 *
-			 */
-			function redeemKey(key) {
-				return function() {
-					var win = window.open(`${redeem_key_url}${key}`, "_blank");
-					win.focus();
-				};
-			}
-
 			return {
 				/**
 				 *
@@ -811,11 +801,12 @@
 						if($.inArray(keys[i], handled_keys) == -1) {
 							var steam_key = keys[i],
 								button_id = 'redeem_' + handled_keys.length,
-								label = show_key ? `Redeem ${steam_key}` : "Redeem Key";
+								label = show_key ? `Redeem ${steam_key}` : "Redeem Key",
+								redeem_url = `${redeem_key_url}${steam_key}`;
 
 							handled_keys.push(steam_key);
 							button_callback(
-								giveawayHelperUI.buildButton(button_id, label, "redeem", redeemKey(steam_key))
+								giveawayHelperUI.buildRedeemButton(button_id, label, redeem_url)
 							);
 						}
 					}
@@ -1625,11 +1616,9 @@
 			 *
 			 */
 			buildButton: function(button_id, label, button_on, click_function) {
-				var button_class = button_on === "redeem" ? this.gh_redeem_button
-						: (button_on ? this.gh_button_on : this.gh_button_off);
-					new_button =
+				var new_button =
 						$("<button>", { type: "button",
-							class: `${this.gh_button} ${button_class}`
+							class: `${this.gh_button} ${button_on ? this.gh_button_on : this.gh_button_off}`
 						}).append(
 							$("<span>").append(label)).append(
 							$("<span>", { class: gh_button_loading, css: { display: "none" }})
@@ -1643,6 +1632,25 @@
 				active_buttons[button_id] = new_button;
 				return new_button;
 			},
+
+			/**
+			 *
+			 */
+			buildRedeemButton: function(button_id, label, redeem_url) {
+				var new_button =
+						$("<a>", { href: redeem_url, target: "_blank" }).append(
+							$("<button>", { type: "button",
+								class: `${this.gh_button} ${this.gh_redeem_button}`
+							}).append(
+								$("<span>").append(label)
+							)
+						);
+
+				active_buttons[button_id] = new_button;
+				return new_button;
+			},
+
+
 
 			/**
 			 *
