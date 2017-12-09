@@ -3,14 +3,16 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.6.1
+// @version 2.7.0
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.dupedornot.com/giveaway.php*
 // @match *://*.embloo.net/task/*
+// @match *://*.gamehag.com/giveaway/*
 // @match *://*.getkeys.net/giveaway.php*
 // @match *://*.ghame.ru/*
 // @match *://*.giftybundle.com/giveaway.php*
+// @match *://*.giveaway.su/giveaway/view/*
 // @match *://*.giveawayhopper.com/giveaway.php*
 // @match *://*.gleam.io/*
 // @match *://*.hrkgame.com/en/giveaway/get-free-game/
@@ -29,18 +31,20 @@
 // @match https://syndication.twitter.com/
 // @match https://player.twitch.tv/
 // @grant GM_getValue
+// @grant GM.getValue
 // @grant GM_setValue
+// @grant GM.setValue
 // @grant GM_deleteValue
+// @grant GM.deleteValue
 // @grant GM_addStyle
 // @grant GM_xmlhttpRequest
+// @grant GM.xmlHttpRequest
 // @updateURL https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/giveawayHelper.user.js
 // @downloadURL https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/giveawayHelper.user.js
 // @require https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js
 // @require https://cdnjs.cloudflare.com/ajax/libs/crypto-js/3.1.2/rollups/md5.js
 // @run-at document-end
 // ==/UserScript==
-
-/* jshint esversion: 6 */
 
 (function() {
 
@@ -87,6 +91,11 @@
 			 *			don't verify that you've done so.  In these cases there's no need to display a "follow/unfollow"
 			 *			button.  For sites that do verify, set the value to true.
 			 *
+			 *		redirect_urls: A function which returns a jQuery object
+			 *			For use with basicHelper.  Used on sites which may hide URLs behind a redirection link.
+			 *			The jQuery object should contain the anchors that contain these links, and should be specific
+			 *			enough so that it only contains links we know must be resolved.
+			 *
 			 */
 			run: function() {
 				var found = false,
@@ -114,6 +123,17 @@
 							cache: true
 						},
 						{
+							hostname: "gamehag.com",
+							helper: basicHelper,
+							cache: true,
+							offset: [80, 0, 300],
+							redirect_urls: function() {
+								return $(".content-list-desc span:contains('Steam Community group')")
+									.parents(".row")
+									.find("a[href*='/giveaway/click/']");
+							}
+						},
+						{
 							hostname: "getkeys.net",
 							helper: basicHelper,
 							cache: false,
@@ -129,6 +149,14 @@
 							hostname: "giftybundle.com",
 							helper: basicHelper,
 							cache: false
+						},
+						{
+							hostname: "giveaway.su",
+							helper: basicHelper,
+							cache: true,
+							redirect_urls: function() {
+								return $(".giveaway-actions a[href*='/action/redirect/']:contains('Steam group')");
+							}
 						},
 						{
 							hostname: "giveawayhopper.com",
@@ -233,7 +261,7 @@
 						}
 
 						giveawayHelperUI.loadUI();
-						site.helper.init(site.cache, site.cache_id, site.offset, site.requires);
+						site.helper.init(site.cache, site.cache_id, site.offset, site.requires, site.redirect_urls);
 					}
 				}
 
@@ -398,7 +426,7 @@
 			 *
 			 */
 			init: function() {
-				GM_addStyle(`
+				MKY.addStyle(`
 					.${giveawayHelperUI.gh_button} {
 						bottom: 0px;
 						height: 32px;
@@ -453,7 +481,7 @@
 			/**
 			 *
 			 */
-			init: function(do_cache, cache_id, offset, requires) {
+			init: function(do_cache, cache_id, offset, requires, redirect_urls) {
 				if(typeof do_cache !== "undefined" && do_cache) {
 					if(typeof cache_id === "undefined") {
 						cache_id = document.location.hostname + document.location.pathname + document.location.search;
@@ -469,7 +497,14 @@
 				// Some sites load the giveaway data dynamically.  Check every second for changes
 				setInterval(function() {
 					// Add Steam buttons
-					SteamHandler.getInstance().findGroups(giveawayHelperUI.addButton, true, do_cache, cache_id);
+					SteamHandler.getInstance().findGroups(
+						giveawayHelperUI.addButton,
+						$("body").html(),
+						true,
+						do_cache,
+						cache_id
+					);
+
 					// Add Steam Key redeem buttons
 					SteamHandler.getInstance().findKeys(giveawayHelperUI.addButton, $("body").html(), true);
 
@@ -478,11 +513,41 @@
 							// Add Twitch buttons
 							TwitchHandler.getInstance().findChannels(
 								giveawayHelperUI.addButton,
+								$("body").html(),
 								true,
 								do_cache,
 								`twitch_${cache_id}`
 							);
 						}
+					}
+
+					// Check for redirects
+					if(typeof redirect_urls !== "undefined") {
+						redirect_urls().each(function() {
+							giveawayHelperUI.resolveUrl($(this).attr("href"), function(url) {
+								// Add Steam button
+								SteamHandler.getInstance().findGroups(
+									giveawayHelperUI.addButton,
+									url,
+									true,
+									do_cache,
+									cache_id
+								);
+
+								if(typeof requires !== "undefined") {
+									if(typeof requires.twitch !== "undefined" && requires.twitch === true) {
+										// Add Twitch button
+										TwitchHandler.getInstance().findChannels(
+											giveawayHelperUI.addButton,
+											url,
+											true,
+											do_cache,
+											`twitch_${cache_id}`
+										);
+									}
+								}
+							});
+						});
 					}
 				}, 1000);
 			},
@@ -509,7 +574,7 @@
 				ready = false;
 
 			// Get all the user data we'll need to make join/leave group requests
-			GM_xmlhttpRequest({
+			MKY.xmlHttpRequest({
 				url: "https://steamcommunity.com/my/groups",
 				method: "GET",
 				onload: function(response) {
@@ -636,13 +701,13 @@
 			 * Join a steam group
 			 */
 			function joinSteamGroup(group_name, group_id, callback) {
-				GM_xmlhttpRequest({
+				MKY.xmlHttpRequest({
 					url: "https://steamcommunity.com/groups/" + group_name,
 					method: "POST",
 					headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
 					data: $.param({ action: "join", sessionID: session_id }),
 					onload: function(response) {
-						GM_xmlhttpRequest({
+						MKY.xmlHttpRequest({
 							url: "https://steamcommunity.com/my/groups",
 							method: "GET",
 							onload: function(response) {
@@ -666,7 +731,7 @@
 			 * Leave a steam group
 			 */
 			function leaveSteamGroup(group_name, group_id, callback) {
-				GM_xmlhttpRequest({
+				MKY.xmlHttpRequest({
 					url: process_url,
 					method: "POST",
 					headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
@@ -690,7 +755,7 @@
 			 * Get the numeric ID for a Steam group
 			 */
 			function getGroupID(group_name, callback) {
-				GM_xmlhttpRequest({
+				MKY.xmlHttpRequest({
 					url: "https://steamcommunity.com/groups/" + group_name,
 					method: "GET",
 					headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
@@ -707,7 +772,7 @@
 			 * Get the name for a Steam group given the numeric ID
 			 */
 			function getGroupName(group_id, callback) {
-				GM_xmlhttpRequest({
+				MKY.xmlHttpRequest({
 					url: "https://steamcommunity.com/gid/" + group_id,
 					method: "GET",
 					headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
@@ -741,49 +806,58 @@
 				/**
 				 *
 				 */
-				findGroups: function(button_callback, show_name, do_cache, cache_id) {
-					var group_names = do_cache ? giveawayHelperUI.restoreCachedLinks(cache_id) : [],
-						group_ids = do_cache ? giveawayHelperUI.restoreCachedLinks(cache_id + "_ids") : [],
-						match;
+				findGroups: function(button_callback, target, show_name, do_cache, cache_id) {
+					var self = this;
 
-					// Look for any links containing steam group names
-					while((match = re_group_name.exec($("body").html())) !== null) {
-						group_names.push(match[1].toLowerCase());
-					}
+					giveawayHelperUI.restoreCachedLinks(cache_id).then(function(group_names) {
+						giveawayHelperUI.restoreCachedLinks(cache_id + "_ids").then(function(group_ids) {
+							var match;
 
-					// Look for any links containing steam group ids
-					while((match = re_group_id.exec($("body").html())) !== null) {
-						if(typeof match[2] !== "undefined") {
-							group_ids.push(match[2].toLowerCase());
-						} else {
-							group_ids.push(match[3].toLowerCase());
-						}
-					}
+							if(!do_cache) {
+								group_names = [];
+								group_ids = [];
+							}
 
-					group_names = giveawayHelperUI.removeDuplicates(group_names);
-					group_ids = giveawayHelperUI.removeDuplicates(group_ids);
+							// Look for any links containing steam group names
+							while((match = re_group_name.exec(target)) !== null) {
+								group_names.push(match[1].toLowerCase());
+							}
 
-					// Cache the results
-					if(do_cache) {
-						giveawayHelperUI.cacheLinks(group_names, cache_id);
-						giveawayHelperUI.cacheLinks(group_ids, cache_id + "_ids");
-					}
+							// Look for any links containing steam group ids
+							while((match = re_group_id.exec(target)) !== null) {
+								if(typeof match[2] !== "undefined") {
+									group_ids.push(match[2].toLowerCase());
+								} else {
+									group_ids.push(match[3].toLowerCase());
+								}
+							}
 
-					// Create the buttons
-					for(var i = 0; i < group_names.length; i++) {
-						if($.inArray(group_names[i], handled_group_names) == -1) {
-							handled_group_names.push(group_names[i]);
-							this.handleEntry({ group_name: group_names[i] }, button_callback, show_name);
-						}
-					}
+							group_names = giveawayHelperUI.removeDuplicates(group_names);
+							group_ids = giveawayHelperUI.removeDuplicates(group_ids);
+
+							// Cache the results
+							if(do_cache) {
+								giveawayHelperUI.cacheLinks(group_names, cache_id);
+								giveawayHelperUI.cacheLinks(group_ids, cache_id + "_ids");
+							}
+
+							// Create the buttons
+							for(var i = 0; i < group_names.length; i++) {
+								if($.inArray(group_names[i], handled_group_names) == -1) {
+									handled_group_names.push(group_names[i]);
+									self.handleEntry({ group_name: group_names[i] }, button_callback, show_name);
+								}
+							}
 
 
-					for(var j = 0; j < group_ids.length; j++) {
-						if($.inArray(group_ids[i], handled_group_ids) == -1) {
-							handled_group_ids.push(group_ids[i]);
-							this.handleEntry({ group_id: group_ids[j] }, button_callback, show_name);
-						}
-					}
+							for(var j = 0; j < group_ids.length; j++) {
+								if($.inArray(group_ids[i], handled_group_ids) == -1) {
+									handled_group_ids.push(group_ids[i]);
+									self.handleEntry({ group_id: group_ids[j] }, button_callback, show_name);
+								}
+							}
+						});
+					});
 				},
 
 				/**
@@ -855,7 +929,7 @@
 				}
 			);
 
-			GM_xmlhttpRequest({
+			MKY.xmlHttpRequest({
 				url: "https://twitter.com",
 				method: "GET",
 				onload: function(response) {
@@ -960,7 +1034,7 @@
 			 * @return {Boolean} is_following - True for "following", false for "not following"
 			 */
 			function getTwitterUserData(twitter_handle, callback) {
-				GM_xmlhttpRequest({
+				MKY.xmlHttpRequest({
 					url: "https://twitter.com/" + twitter_handle,
 					method: "GET",
 					onload: function(response) {
@@ -992,7 +1066,7 @@
 				public (a few seconds).  Increase the range by a few seconds to compensate. */
 				end_time += (60 * 1000);
 
-				GM_xmlhttpRequest({
+				MKY.xmlHttpRequest({
 					url: "https://twitter.com/" + user_handle,
 					method: "GET",
 					onload: function(response) {
@@ -1036,7 +1110,7 @@
 					giveawayHelperUI.showError(`Failed to unfollow Twitter user:
 						<a href="https://twitter.com/${twitter_handle}" target="_blank">${twitter_handle}</a>`);
 				} else {
-					GM_xmlhttpRequest({
+					MKY.xmlHttpRequest({
 						url: "https://api.twitter.com/1.1/friendships/destroy.json",
 						method: "POST",
 						headers: {
@@ -1062,7 +1136,7 @@
 			 * @param {Array} tweet_id - A single tweet ID
 			 */
 			function deleteTwitterTweet(tweet_id) {
-				GM_xmlhttpRequest({
+				MKY.xmlHttpRequest({
 					url: "https://twitter.com/i/tweet/destroy",
 					method: "POST",
 					headers: {
@@ -1084,7 +1158,7 @@
 			 * @param {Array} tweet_id - A single retweet ID
 			 */
 			function deleteTwitterRetweet(tweet_id) {
-				GM_xmlhttpRequest({
+				MKY.xmlHttpRequest({
 					url: "https://api.twitter.com/1.1/statuses/unretweet.json",
 					method: "POST",
 					headers: {
@@ -1161,7 +1235,7 @@
 				}
 			);
 
-			GM_xmlhttpRequest({
+			MKY.xmlHttpRequest({
 				url: "https://api.twitch.tv/api/viewer/token.json",
 				method: "GET",
 				headers: { "Client-ID": "jzkbprff40iqj646a697cyrvl0zt2m6" },
@@ -1235,7 +1309,7 @@
 			 *
 			 */
 			function deleteTwitchFollow(twitch_handle, callback) {
-				GM_xmlhttpRequest({
+				MKY.xmlHttpRequest({
 					url: "https://api.twitch.tv/kraken/users/" + user_handle + "/follows/channels/" + twitch_handle,
 					method: "DELETE",
 					headers: { "Authorization": "OAuth " + api_token },
@@ -1244,9 +1318,9 @@
 							giveawayHelperUI.showError(`Failed to unfollow Twitch user:
 								<a href="https://twitch.tv/${twitch_handle}" target="_blank">${twitch_handle}</a>`);
 
-							callback(false);
+							if(typeof callback == "function") callback(false);
 						} else {
-							callback(true);
+							if(typeof callback == "function") callback(true);
 						}
 					}
 				});
@@ -1256,7 +1330,7 @@
 			 *
 			 */
 			function twitchFollow(twitch_handle, callback) {
-				GM_xmlhttpRequest({
+				MKY.xmlHttpRequest({
 					url: "https://api.twitch.tv/kraken/users/" + user_handle + "/follows/channels/" + twitch_handle,
 					method: "PUT",
 					headers: { "Authorization": "OAuth " + api_token },
@@ -1277,7 +1351,7 @@
 			 * @return {Boolean} is_follow - True for "following", false for "not following"
 			 */
 			function getTwitchUserData(twitch_handle, callback) {
-				GM_xmlhttpRequest({
+				MKY.xmlHttpRequest({
 					url: "https://api.twitch.tv/kraken/users/" + user_handle + "/follows/channels/" + twitch_handle,
 					method: "GET",
 					headers: { "Authorization": "OAuth " + api_token },
@@ -1341,24 +1415,31 @@
 				/**
 				 *
 				 */
-				findChannels: function(button_callback, show_name, do_cache, cache_id) {
-					var re = /twitch\.tv\/([a-zA-Z0-9_]{2,25})/g,
-						channels = do_cache ? giveawayHelperUI.restoreCachedLinks(cache_id) : [],
-						match;
+				findChannels: function(button_callback, target, show_name, do_cache, cache_id) {
+					var self = this;
 
-					while((match = re.exec($("body").html())) !== null) {
-						channels.push(match[1].toLowerCase());
-					}
+					giveawayHelperUI.restoreCachedLinks(cache_id).then(function(channels) {
+						var re = /twitch\.tv\/([a-zA-Z0-9_]{2,25})/g,
+							match;
 
-					channels = giveawayHelperUI.removeDuplicates(channels);
-					if(do_cache) giveawayHelperUI.cacheLinks(channels, cache_id);
-
-					for(var i = 0; i < channels.length; i++) {
-						if($.inArray(channels[i], handled_channels) == -1) {
-							handled_channels.push(channels[i]);
-							this.handleEntry(channels[i], button_callback, null, show_name);
+						if(!do_cache) {
+							channels = [];
 						}
-					}
+
+						while((match = re.exec(target)) !== null) {
+							channels.push(match[1].toLowerCase());
+						}
+
+						channels = giveawayHelperUI.removeDuplicates(channels);
+						if(do_cache) giveawayHelperUI.cacheLinks(channels, cache_id);
+
+						for(var i = 0; i < channels.length; i++) {
+							if($.inArray(channels[i], handled_channels) == -1) {
+								handled_channels.push(channels[i]);
+								self.handleEntry(channels[i], button_callback, null, show_name);
+							}
+						}
+					});
 				}
 			};
 		}
@@ -1388,7 +1469,8 @@
 			gh_error = randomString(10),
 			gh_close = randomString(10),
 			main_container = $("<div>", { class: gh_main_container }),
-			button_container = $("<span>");
+			button_container = $("<span>"),
+			resolved_urls = [];
 
 		/**
 		 * Generate a random alphanumeric string
@@ -1424,7 +1506,7 @@
 			 * Print the UI
 			 */
 			loadUI: function() {
-				GM_addStyle(`
+				MKY.addStyle(`
 					html {
 						overflow-y: scroll !important;
 					}
@@ -1535,7 +1617,7 @@
 			 *
 			 */
 			defaultButtonSetup: function(offset) {
-				GM_addStyle(`
+				MKY.addStyle(`
 					.${this.gh_button} {
 						background-image:none;
 						border: 1px solid transparent;
@@ -1596,7 +1678,7 @@
 
 				main_container.append(
 					$("<div>", { class: gh_button_container }).append(
-						$("<span>", { class: gh_button_title }).html("Giveaway Helper v" + GM_info.script.version)
+						$("<span>", { class: gh_button_title }).html("Giveaway Helper v" + MKY.info.script.version)
 					).append(button_container)
 				);
 
@@ -1745,14 +1827,46 @@
 			 * Some sites remove links to a group after you get your reward, remember which links we've seen where
 			 */
 			cacheLinks: function(data, id) {
-				GM_setValue(id, JSON.stringify(data));
+				MKY.setValue(id, JSON.stringify(data));
 			},
 
 			/**
 			 *
 			 */
 			restoreCachedLinks: function(id) {
-				return JSON.parse(GM_getValue(id, JSON.stringify([])));
+				return MKY.getValue(id, JSON.stringify([])).then(function(value) {
+					return JSON.parse(value);
+				});
+			},
+
+			/**
+			 *
+			 */
+			resolveUrl: function(url, callback) {
+				var self = this,
+					cached_url_id = `cache_${CryptoJS.MD5(url)}`;
+
+				this.restoreCachedLinks(cached_url_id).then(function(value){
+					if(value.length !== 0) {
+						callback(value[0]);
+					} else {
+						self.cacheLinks([false], cached_url_id);
+
+						MKY.xmlHttpRequest({
+							url: url,
+							method: "GET",
+							onload: function(response) {
+								if(response.status == 200 && response.finalUrl !== null) {
+									self.cacheLinks([response.finalUrl], cached_url_id);
+								}
+
+								this.restoreCachedLinks(cached_url_id).then(function(final_url){
+									callback(final_url);
+								});
+							}
+						});
+					}
+				});
 			}
 		};
 	})();
@@ -1799,19 +1913,21 @@
 					if(event.source == command_hub.contentWindow) {
 						if(event.data.status == "ready") {
 							// the iframe has finished loading, tell it what to do
-							GM_setValue(funcvar, encodeURI(data_func.toString()));
+							MKY.setValue(funcvar, encodeURI(data_func.toString()));
 							command_hub.contentWindow.postMessage({ status: "run" }, "*");
 						} else if(event.data.status == "finished") {
 							// wait until the values have been set
 							var temp_interval = setInterval(function() {
-								if(typeof GM_getValue(retvar) !== "undefined") {
-									clearInterval(temp_interval);
+								MKY.getValue(retvar).then(function(value) {
+									if(typeof value !== "undefined") {
+										clearInterval(temp_interval);
 
-									// the iframe has finished, send the data to the callback and close the frame
-									document.body.removeChild(command_hub);
-									callback(GM_getValue(retvar));
-									GM_deleteValue(retvar);
-								}
+										// the iframe has finished, send the data to the callback and close the frame
+										document.body.removeChild(command_hub);
+										callback(value);
+										MKY.deleteValue(retvar);
+									}
+								});
 							}, 100);
 						}
 					}
@@ -1832,12 +1948,14 @@
 						if(event.data.status == "run") {
 							// wait until the values have been set
 							var temp_interval = setInterval(function() {
-								if(typeof GM_getValue(funcvar) !== "undefined") {
-									clearInterval(temp_interval);
-									GM_setValue(retvar, eval(`(${decodeURI(GM_getValue(funcvar))})`)());
-									GM_deleteValue(funcvar);
-									parent.postMessage({ status: "finished" }, "*");
-								}
+								MKY.getValue(funcvar).then(function(value) {
+									if(typeof value !== "undefined") {
+										clearInterval(temp_interval);
+										MKY.setValue(retvar, eval(`(${decodeURI(value)})`)());
+										MKY.deleteValue(funcvar);
+										parent.postMessage({ status: "finished" }, "*");
+									}
+								});
 							}, 100);
 						}
 					}
@@ -1848,6 +1966,41 @@
 			}
 		};
 	})();
+
+	// Greasemonkey 4 polyfill
+	// https://arantius.com/misc/greasemonkey/imports/greasemonkey4-polyfill.js
+
+	var MKY = typeof GM !== "undefined" ? GM : {
+			'info': GM_info,
+			'addStyle': GM_addStyle,
+			'xmlHttpRequest': GM_xmlhttpRequest,
+			'deleteValue': GM_deleteValue,
+			'setValue': GM_setValue,
+			'getValue': function () {
+				return new Promise((resolve, reject) => {
+						try {
+							resolve(GM_getValue.apply(this, arguments));
+						} catch (e) {
+							reject(e);
+						}
+					});
+				}
+	};
+
+	if(typeof GM_addStyle == 'undefined') {
+		MKY.addStyle = function(aCss) {
+			'use strict';
+			let head = document.getElementsByTagName('head')[0];
+			if(head) {
+				let style = document.createElement('style');
+				style.setAttribute('type', 'text/css');
+				style.textContent = aCss;
+				head.appendChild(style);
+				return style;
+			}
+			return null;
+		};
+	}
 
 	setup.run();
 })();

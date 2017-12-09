@@ -25,9 +25,11 @@ Additional features may be unlocked by also installing the add-on to this script
     <tr><td>DogeBundle</td><td align="center">✔</td><td></td><td></td></tr>
     <tr><td>DupedOrNot</td><td align="center">✔</td><td></td><td align="center">✔</td></tr>
     <tr><td>Embloo</td><td align="center">✔</td><td></td><td></td></tr>
+    <tr><td>Gamehag</td><td align="center">✔</td><td></td><td align="center">✔</td></tr>
     <tr><td>GetKeys</td><td align="center">✔</td><td></td><td align="center">✔</td></tr>
     <tr><td>Ghame.ru</td><td align="center">✔</td><td></td><td></td></tr>
     <tr><td>GiftyBundle</td><td align="center">✔</td><td></td><td></td></tr>
+    <tr><td>GiveAway.su</td><td align="center">✔</td><td></td><td align="center">✔</td></tr>
     <tr><td>Giveawayhopper</td><td align="center">✔</td><td></td><td></td></tr>
     <tr><td>Gleam.io (<a href="https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/images/gleam.png">preview</a>)</td><td align="center">✔</td><td align="center">✔</td><td align="center">✔</td></tr>
     <tr><td>HRK</td><td align="center">✔</td><td></td><td></td></tr>
