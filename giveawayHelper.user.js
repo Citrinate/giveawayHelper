@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.7.0
+// @version 2.7.1
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.dupedornot.com/giveaway.php*
@@ -561,7 +561,7 @@
 		function init() {
 			var re_group_name = /steamcommunity\.com\/groups\/([a-zA-Z0-9\-\_]{2,32})/g,
 				re_group_id = /steamcommunity.com\/gid\/(([0-9]+)|\[g:[0-9]:([0-9]+)\])/g,
-				re_steam_key = /([A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5})/g,
+				re_steam_key = /([A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5}|[A-Z0-9]{5}-[A-Z0-9]{5}-[A-Z0-9]{5})/g,
 				redeem_key_url = "https://store.steampowered.com/account/registerkey?key=",
 				user_id = null,
 				session_id = null,
