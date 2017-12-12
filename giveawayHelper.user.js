@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.7.1
+// @version 2.7.2
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.dupedornot.com/giveaway.php*
@@ -86,6 +86,10 @@
 			 *			site.  Offsets the UI by X number of pixels in the order of [top, left, right].
 			 *			Directions that shouldn't be offset should be set to 0.
 			 *
+			 *      zIndex: Integer
+			 *          For use with basicHelper.  Used to correct instances where the site's UI might overlay the
+			 *          the script's UI and will be blocked by it.
+			 *
 			 *		requires: An object: {twitch: Boolean}
 			 *			For use with basicHelper.  Some sites may have links asking you to follow a twitch channel, but
 			 *			don't verify that you've done so.  In these cases there's no need to display a "follow/unfollow"
@@ -127,6 +131,7 @@
 							helper: basicHelper,
 							cache: true,
 							offset: [80, 0, 300],
+							zIndex: 80,
 							redirect_urls: function() {
 								return $(".content-list-desc span:contains('Steam Community group')")
 									.parents(".row")
@@ -154,6 +159,7 @@
 							hostname: "giveaway.su",
 							helper: basicHelper,
 							cache: true,
+							zIndex: 1,
 							redirect_urls: function() {
 								return $(".giveaway-actions a[href*='/action/redirect/']:contains('Steam group')");
 							}
@@ -260,7 +266,7 @@
 							if(!match_found) break;
 						}
 
-						giveawayHelperUI.loadUI();
+						giveawayHelperUI.loadUI(site.zIndex);
 						site.helper.init(site.cache, site.cache_id, site.offset, site.requires, site.redirect_urls);
 					}
 				}
@@ -1505,7 +1511,9 @@
 			/**
 			 * Print the UI
 			 */
-			loadUI: function() {
+			loadUI: function(zIndex) {
+				zIndex = typeof zIndex == "undefined" ? 9999999999 : zIndex;
+
 				MKY.addStyle(`
 					html {
 						overflow-y: scroll !important;
@@ -1520,7 +1528,7 @@
 						text-align: center;
 						top: 0px;
 						right: 0px;
-						z-index: 9999999999;
+						z-index: ${zIndex};
 					}
 
 					.${gh_button_container} {
@@ -1846,7 +1854,7 @@
 				var self = this,
 					cached_url_id = `cache_${CryptoJS.MD5(url)}`;
 
-				this.restoreCachedLinks(cached_url_id).then(function(value){
+				self.restoreCachedLinks(cached_url_id).then(function(value){
 					if(value.length !== 0) {
 						callback(value[0]);
 					} else {
@@ -1860,7 +1868,7 @@
 									self.cacheLinks([response.finalUrl], cached_url_id);
 								}
 
-								this.restoreCachedLinks(cached_url_id).then(function(final_url){
+								self.restoreCachedLinks(cached_url_id).then(function(final_url){
 									callback(final_url);
 								});
 							}
