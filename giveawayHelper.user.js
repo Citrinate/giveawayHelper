@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.7.2
+// @version 2.7.3
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.dupedornot.com/giveaway.php*
@@ -143,7 +143,8 @@
 							helper: basicHelper,
 							cache: false,
 							requires: {twitch: true},
-							offset: [60, 0, 0]
+							offset: [60, 0, 0],
+							zIndex: 998
 						},
 						{
 							hostname: "ghame.ru",
@@ -203,7 +204,8 @@
 							hostname: "prys.ga",
 							helper: basicHelper,
 							cache: false,
-							offset: [50, 0, 0]
+							offset: [50, 0, 0],
+							zIndex: 1029
 						},
 						{
 							hostname: "simplo.gg",
@@ -1476,7 +1478,8 @@
 			gh_close = randomString(10),
 			main_container = $("<div>", { class: gh_main_container }),
 			button_container = $("<span>"),
-			resolved_urls = [];
+			resolved_urls = [],
+			offset_top = 0;
 
 		/**
 		 * Generate a random alphanumeric string
@@ -1498,7 +1501,7 @@
 		 */
 		function updateTopMargin() {
 			$("html").css("margin-top",
-				main_container.is(":visible") ? (main_container.outerHeight() + main_container.position().top) : 0
+				main_container.is(":visible") ? (main_container.outerHeight() + main_container.position().top - offset_top) : 0
 			);
 		}
 
@@ -1682,6 +1685,7 @@
 
 				if(typeof offset !== "undefined") {
 					main_container.css({top: offset[0], left: offset[1], right: offset[2]});
+					offset_top = offset[0];
 				}
 
 				main_container.append(
