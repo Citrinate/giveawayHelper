@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.7.3
+// @version 2.7.4
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.dupedornot.com/giveaway.php*
@@ -1528,7 +1528,7 @@
 						left: 0px;
 						line-height: 21px;
 						position: fixed;
-						text-align: center;
+						text-align: left;
 						top: 0px;
 						right: 0px;
 						z-index: ${zIndex};
@@ -1546,6 +1546,7 @@
 					.${gh_button_title} {
 						font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
 						padding: 10px 15px;
+						margin-right:8px;
 					}
 
 					.${gh_button_loading} {
