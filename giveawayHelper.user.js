@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.7.4
+// @version 2.7.5
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.dupedornot.com/giveaway.php*
@@ -2000,7 +2000,7 @@
 				}
 	};
 
-	if(typeof GM_addStyle == 'undefined') {
+	if(typeof GM_addStyle == 'undefined' || typeof MKY.addStyle == 'undefined') {
 		MKY.addStyle = function(aCss) {
 			'use strict';
 			let head = document.getElementsByTagName('head')[0];

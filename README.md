@@ -45,7 +45,7 @@ Additional features may be unlocked by also installing the add-on to this script
 </table>
 
 ## Installation
-1. Install [Tampermonkey](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) (for Chrome) or [Greasemonkey](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/) (for Firefox)
+1. Install Tampermonkey (for [Chrome](https://chrome.google.com/webstore/detail/tampermonkey/dhdgffkkebhmkfjojejmpbldmpobfkfo) or [Firefox](https://addons.mozilla.org/en-US/firefox/addon/tampermonkey/)) or Greasemonkey (for [Firefox](https://addons.mozilla.org/en-US/firefox/addon/greasemonkey/))
 2. Go [here](https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/giveawayHelper.user.js) (alternatively, the script can be installed from [Greasy Fork](https://greasyfork.org/en/scripts/34764-giveaway-helper))
 3. Click "Install"
 
