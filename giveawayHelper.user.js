@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.8.0
+// @version 2.8.1
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
@@ -102,9 +102,9 @@
 			 *			enough so that it only contains links we know must be resolved.
 			 *
 			 *		redirect_url_extract: A function which returns a string
-			 *			For use with basicHelper.  Used in instances where redirections urls are used, but aren't
-			 *			contained within anchors.  This function is used to extract the url from whatever elements the
-			 *			redirect_urls function returns.
+			 *			For use with basicHelper and redirect_urls.  Used in instances where redirections are used, but
+			 *			the links can't be found within anchors.  This function is used to extract the url from whatever
+			 *			elements the redirect_urls function returns.
 			 *
 			 */
 			run: function() {
@@ -287,7 +287,8 @@
 						}
 
 						giveawayHelperUI.loadUI(site.zIndex);
-						site.helper.init(site.cache, site.cache_id, site.offset, site.requires, site.redirect_urls, site.redirect_url_extract);
+						site.helper.init(site.cache, site.cache_id, site.offset, site.requires, site.redirect_urls,
+							site.redirect_url_extract);
 					}
 				}
 
@@ -550,8 +551,10 @@
 					// Check for redirects
 					if(typeof redirect_urls !== "undefined") {
 						redirect_urls().each(function() {
+							var redirect_url;
+
 							if(typeof redirect_url_extract !== "undefined") {
-								var redirect_url = redirect_url_extract($(this));
+								redirect_url = redirect_url_extract($(this));
 							} else {
 								redirect_url = $(this).attr("href");
 							}
@@ -1524,9 +1527,9 @@
 		 * Push the page down to make room for notifications
 		 */
 		function updateTopMargin() {
-			$("html").css("margin-top",
-				main_container.is(":visible") ? (main_container.outerHeight() + main_container.position().top - offset_top) : 0
-			);
+			var new_margin_top = main_container.outerHeight() + main_container.position().top - offset_top;
+
+			$("html").css("margin-top", main_container.is(":visible") ? new_margin_top : 0);
 		}
 
 		return {
