@@ -22,6 +22,7 @@ Additional features may be unlocked by also installing the add-on to this script
   </thead>
   <tbody>
     <tr><td>ChubbyKeys</td><td align="center">✔</td><td></td><td></td></tr>
+    <tr><td>Banana Giveaway</td><td align="center">✔</td><td></td><td></td></tr>
     <tr><td>DogeBundle</td><td align="center">✔</td><td></td><td></td></tr>
     <tr><td>DupedOrNot</td><td align="center">✔</td><td></td><td align="center">✔</td></tr>
     <tr><td>Embloo</td><td align="center">✔</td><td></td><td></td></tr>

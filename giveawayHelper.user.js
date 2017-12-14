@@ -3,8 +3,9 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.7.5
+// @version 2.8.0
 // @match *://*.chubbykeys.com/giveaway.php*
+// @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.dupedornot.com/giveaway.php*
 // @match *://*.embloo.net/task/*
@@ -100,6 +101,11 @@
 			 *			The jQuery object should contain the anchors that contain these links, and should be specific
 			 *			enough so that it only contains links we know must be resolved.
 			 *
+			 *		redirect_url_extract: A function which returns a string
+			 *			For use with basicHelper.  Used in instances where redirections urls are used, but aren't
+			 *			contained within anchors.  This function is used to extract the url from whatever elements the
+			 *			redirect_urls function returns.
+			 *
 			 */
 			run: function() {
 				var found = false,
@@ -108,6 +114,18 @@
 							hostname: "chubbykeys.com",
 							helper: basicHelper,
 							cache: false
+						},
+						{
+							hostname: "bananagiveaway.com",
+							helper: basicHelper,
+							cache: true,
+							redirect_urls: function() {
+								return $("li:contains('Steam Community')")
+									.find("button:nth-child(1)");
+							},
+							redirect_url_extract: function(element) {
+								return element.attr("onclick").replace("window.open('", "").replace("')", "");
+							}
 						},
 						{
 							hostname: "dogebundle.com",
@@ -269,7 +287,7 @@
 						}
 
 						giveawayHelperUI.loadUI(site.zIndex);
-						site.helper.init(site.cache, site.cache_id, site.offset, site.requires, site.redirect_urls);
+						site.helper.init(site.cache, site.cache_id, site.offset, site.requires, site.redirect_urls, site.redirect_url_extract);
 					}
 				}
 
@@ -489,7 +507,7 @@
 			/**
 			 *
 			 */
-			init: function(do_cache, cache_id, offset, requires, redirect_urls) {
+			init: function(do_cache, cache_id, offset, requires, redirect_urls, redirect_url_extract) {
 				if(typeof do_cache !== "undefined" && do_cache) {
 					if(typeof cache_id === "undefined") {
 						cache_id = document.location.hostname + document.location.pathname + document.location.search;
@@ -532,7 +550,13 @@
 					// Check for redirects
 					if(typeof redirect_urls !== "undefined") {
 						redirect_urls().each(function() {
-							giveawayHelperUI.resolveUrl($(this).attr("href"), function(url) {
+							if(typeof redirect_url_extract !== "undefined") {
+								var redirect_url = redirect_url_extract($(this));
+							} else {
+								redirect_url = $(this).attr("href");
+							}
+
+							giveawayHelperUI.resolveUrl(redirect_url, function(url) {
 								// Add Steam button
 								SteamHandler.getInstance().findGroups(
 									giveawayHelperUI.addButton,
