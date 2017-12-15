@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.8.1
+// @version 2.8.2
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
@@ -239,7 +239,8 @@
 							hostname: "treasuregiveaways.com",
 							helper: basicHelper,
 							cache: true,
-							offset: [50, 0, 0]
+							offset: [50, 0, 0],
+							zIndex: 1029
 						},
 						{
 							hostname: "whosgamingnow.net",
