@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.8.3
+// @version 2.8.4
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
@@ -120,7 +120,7 @@
 							helper: basicHelper,
 							cache: true,
 							redirect_urls: function() {
-								return $("li:contains('Steam Community')")
+								return $("li:contains('Join')")
 									.find("button:nth-child(1)");
 							},
 							redirect_url_extract: function(element) {
