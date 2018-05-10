@@ -16,30 +16,29 @@ Additional features may be unlocked by also installing the add-on to this script
     </tr>
     <tr>
       <td align="center"><strong>Steam</strong></td>
-      <td align="center"><strong>Twitter</strong></td>
       <td align="center"><strong>Twitch</strong></td>
     </tr>
   </thead>
   <tbody>
-    <tr><td>ChubbyKeys</td><td align="center">✔</td><td></td><td></td></tr>
-    <tr><td>Banana Giveaway</td><td align="center">✔</td><td></td><td></td></tr>
-    <tr><td>DogeBundle</td><td align="center">✔</td><td></td><td></td></tr>
-    <tr><td>DupedOrNot</td><td align="center">✔</td><td></td><td align="center">✔</td></tr>
-    <tr><td>Embloo</td><td align="center">✔</td><td></td><td></td></tr>
-    <tr><td>Gamehag</td><td align="center">✔</td><td></td><td></td></tr>
-    <tr><td>GetKeys</td><td align="center">✔</td><td></td><td align="center">✔</td></tr>
-    <tr><td>GiveAway.su</td><td align="center">✔</td><td></td><td></td></tr>
-    <tr><td>Giveawayhopper</td><td align="center">✔</td><td></td><td></td></tr>
-    <tr><td>Gleam.io (<a href="https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/images/gleam.png">preview</a>)</td><td align="center">✔</td><td align="center">✔</td><td align="center">✔</td></tr>
-    <tr><td>HRK</td><td align="center">✔</td><td></td><td></td></tr>
-    <tr><td>Indiegala</td><td align="center">✔</td><td></td><td></td></tr>
-    <tr><td>Key Champions</td><td align="center">✔</td><td></td><td></td></tr>
-    <tr><td>Marvelousga</td><td align="center">✔</td><td></td><td align="center">✔</td></tr>
-    <tr><td>Prys.ga</td><td align="center">✔</td><td></td><td></td></tr>
-    <tr><td>Simplo.gg</td><td align="center">✔</td><td></td><td></td></tr>
-    <tr><td>Steam Friends</td><td align="center">✔</td><td></td><td></td></tr>
-    <tr><td>Treasure Giveaways</td><td align="center">✔</td><td></td><td></td></tr>
-    <tr><td>Who's Gaming Now?!</td><td align="center">✔</td><td></td><td></td></tr>
+    <tr><td>ChubbyKeys</td><td align="center">✔</td><td></td></tr>
+    <tr><td>Banana Giveaway</td><td align="center">✔</td><td></td></tr>
+    <tr><td>DogeBundle</td><td align="center">✔</td><td></td></tr>
+    <tr><td>DupedOrNot</td><td align="center">✔</td><td align="center">✔</td></tr>
+    <tr><td>Embloo</td><td align="center">✔</td><td></td></tr>
+    <tr><td>Gamehag</td><td align="center">✔</td><td></td></tr>
+    <tr><td>GetKeys</td><td align="center">✔</td><td align="center">✔</td></tr>
+    <tr><td>GiveAway.su</td><td align="center">✔</td><td></td></tr>
+    <tr><td>Giveawayhopper</td><td align="center">✔</td><td></td></tr>
+    <tr><td>Gleam.io (<a href="https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/images/gleam.png">preview</a>)</td><td align="center">✔</td><td align="center">✔</td></tr>
+    <tr><td>HRK</td><td align="center">✔</td><td></td></tr>
+    <tr><td>Indiegala</td><td align="center">✔</td><td></td></tr>
+    <tr><td>Key Champions</td><td align="center">✔</td><td></td></tr>
+    <tr><td>Marvelousga</td><td align="center">✔</td><td align="center">✔</td></tr>
+    <tr><td>Prys.ga</td><td align="center">✔</td><td></td></tr>
+    <tr><td>Simplo.gg</td><td align="center">✔</td><td></td></tr>
+    <tr><td>Steam Friends</td><td align="center">✔</td><td></td></tr>
+    <tr><td>Treasure Giveaways</td><td align="center">✔</td><td></td></tr>
+    <tr><td>Who's Gaming Now?!</td><td align="center">✔</td><td></td></tr>
   </tbody>
 </table>
 
