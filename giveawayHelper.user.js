@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.8.5
+// @version 2.8.6
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
@@ -339,7 +339,7 @@
 					case "twitter_retweet":
 					case "twitter_tweet":
 					case "twitter_hashtags":
-						createTwitterButton(entry, entry_element);
+						//createTwitterButton(entry, entry_element);
 						break;
 
 					case "twitchtv_follow":
