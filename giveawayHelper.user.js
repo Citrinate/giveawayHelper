@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.8.6
+// @version 2.8.7
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
@@ -795,7 +795,7 @@
 					method: "GET",
 					headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
 					onload: function(response) {
-						var group_id = response.responseText.match(/joinchat\/([0-9]+)/);
+						var group_id = response.responseText.match(/OpenGroupChat\( \'([0-9]+)\'/);
 						group_id = group_id === null ? null : group_id[1];
 
 						callback(group_id);
