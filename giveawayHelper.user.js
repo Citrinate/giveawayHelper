@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.8.7
+// @version 2.9.0
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
@@ -16,6 +16,7 @@
 // @match *://*.giveaway.su/giveaway/view/*
 // @match *://*.giveawayhopper.com/giveaway.php*
 // @match *://*.gleam.io/*
+// @match *://*.grabfreegame.com/giveaway/*
 // @match *://*.hrkgame.com/en/giveaway/get-free-game/
 // @match *://*.indiegala.com/*
 // @match *://*.keychampions.net/view.php?gid=*
@@ -191,6 +192,19 @@
 							hostname: "gleam.io",
 							helper: gleamHelper,
 							cache: false
+						},
+						{
+							hostname: "grabfreegame.com",
+							helper: basicHelper,
+							cache: true,
+							offset: [56, 0, 0],
+							redirect_urls: function() {
+								return $("li p:contains('Steam Group')").parent()
+									.find("button:contains('To do')");
+							},
+							redirect_url_extract: function(element) {
+								return element.attr("onclick").replace("window.open('", "").replace("')", "");
+							}
 						},
 						{
 							hostname: "hrkgame.com",
