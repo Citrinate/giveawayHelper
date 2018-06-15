@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.9.0
+// @version 2.9.1
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
@@ -629,10 +629,10 @@
 				onload: function(response) {
 					user_id = response.responseText.match(/g_steamID = \"(.+?)\";/);
 					session_id = response.responseText.match(/g_sessionID = \"(.+?)\";/);
-					process_url = response.responseText.match(/processURL = '(.+?)';/);
+					process_url = response.responseText.match(/steamcommunity.com\/id\/(.+?)\/friends\//);
 					user_id = user_id === null ? null : user_id[1];
 					session_id = session_id === null ? null : session_id[1];
-					process_url = process_url === null ? null : process_url[1];
+					process_url = process_url === null ? null : "https://steamcommunity.com/id/" + process_url[1] + "/home_process";
 
 					$(response.responseText).find("a[href^='https://steamcommunity.com/groups/']").each(function() {
 						var group_name = $(this).attr("href").replace("https://steamcommunity.com/groups/", "");
