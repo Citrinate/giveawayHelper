@@ -3,13 +3,14 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.9.1
+// @version 2.10.0
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.dupedornot.com/giveaway.php*
 // @match *://*.embloo.net/task/*
 // @match *://*.gamehag.com/giveaway/*
+// @match *://*.gamecode.win/giveaway/*
 // @match *://*.getkeys.net/giveaway.php*
 // @match *://*.ghame.ru/*
 // @match *://*.giftybundle.com/giveaway.php*
@@ -155,6 +156,11 @@
 								return $(".element-list .task-content:contains('Steam Community group')")
 									.find("a[href*='/giveaway/click/']");
 							}
+						},
+						{
+							hostname: "gamecode.win",
+							helper: basicHelper,
+							cache: true
 						},
 						{
 							hostname: "getkeys.net",
