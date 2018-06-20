@@ -3,14 +3,14 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.10.0
+// @version 2.10.1
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
 // @match *://*.dupedornot.com/giveaway.php*
 // @match *://*.embloo.net/task/*
-// @match *://*.gamehag.com/giveaway/*
 // @match *://*.gamecode.win/giveaway/*
+// @match *://*.gamehag.com/giveaway/*
 // @match *://*.getkeys.net/giveaway.php*
 // @match *://*.ghame.ru/*
 // @match *://*.giftybundle.com/giveaway.php*
@@ -147,6 +147,11 @@
 							cache: true
 						},
 						{
+							hostname: "gamecode.win",
+							helper: basicHelper,
+							cache: true
+						},
+						{
 							hostname: "gamehag.com",
 							helper: basicHelper,
 							cache: true,
@@ -156,11 +161,6 @@
 								return $(".element-list .task-content:contains('Steam Community group')")
 									.find("a[href*='/giveaway/click/']");
 							}
-						},
-						{
-							hostname: "gamecode.win",
-							helper: basicHelper,
-							cache: true
 						},
 						{
 							hostname: "getkeys.net",
@@ -635,10 +635,10 @@
 				onload: function(response) {
 					user_id = response.responseText.match(/g_steamID = \"(.+?)\";/);
 					session_id = response.responseText.match(/g_sessionID = \"(.+?)\";/);
-					process_url = response.responseText.match(/steamcommunity.com\/id\/(.+?)\/friends\//);
+					process_url = response.responseText.match(/steamcommunity.com\/(id\/.+?|profiles\/[0-9]+)\/friends\//);
 					user_id = user_id === null ? null : user_id[1];
 					session_id = session_id === null ? null : session_id[1];
-					process_url = process_url === null ? null : "https://steamcommunity.com/id/" + process_url[1] + "/home_process";
+					process_url = process_url === null ? null : "https://steamcommunity.com/" + process_url[1] + "/home_process";
 
 					$(response.responseText).find("a[href^='https://steamcommunity.com/groups/']").each(function() {
 						var group_name = $(this).attr("href").replace("https://steamcommunity.com/groups/", "");
