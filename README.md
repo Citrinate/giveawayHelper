@@ -27,6 +27,7 @@ Additional features may be unlocked by also installing the add-on to this script
     <tr><td>Embloo</td><td align="center">✔</td><td></td></tr>
     <tr><td>Gamecode</td><td align="center">✔</td><td></td></tr>
     <tr><td>Gamehag</td><td align="center">✔</td><td></td></tr>
+    <tr><td>Gamezito</td><td align="center">✔</td><td></td></tr>
     <tr><td>GetKeys</td><td align="center">✔</td><td align="center">✔</td></tr>
     <tr><td>GiveAway.su</td><td align="center">✔</td><td></td></tr>
     <tr><td>Giveawayhopper</td><td align="center">✔</td><td></td></tr>
