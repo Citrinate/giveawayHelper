@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.11.1
+// @version 2.11.2
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
@@ -109,6 +109,9 @@
 			 *			the links can't be found within anchors.  This function is used to extract the url from whatever
 			 *			elements the redirect_urls function returns.
 			 *
+			 *		onLoad: A function
+			 *			For use with basicHelper.  A function that executes after the page loads.
+			 *
 			 */
 			run: function() {
 				var found = false,
@@ -166,7 +169,15 @@
 						{
 							hostname: "gamezito.com",
 							helper: basicHelper,
-							cache: true
+							cache: true,
+							onLoad: function() {
+								var temp_interval = setInterval(function() {
+									if($("body").css("overflow") != "visible") {
+										clearInterval(temp_interval);
+										$("body").css("overflow", "visible");
+									}
+								}, 100);
+							}
 						},
 						{
 							hostname: "getkeys.net",
@@ -312,7 +323,7 @@
 							if(!match_found) break;
 						}
 
-						giveawayHelperUI.loadUI(site.zIndex);
+						giveawayHelperUI.loadUI(site.zIndex, site.onLoad);
 						site.helper.init(site.cache, site.cache_id, site.offset, site.requires, site.redirect_urls,
 							site.redirect_url_extract);
 					}
@@ -1567,8 +1578,10 @@
 			/**
 			 * Print the UI
 			 */
-			loadUI: function(zIndex) {
+			loadUI: function(zIndex, onLoad) {
 				zIndex = typeof zIndex == "undefined" ? 9999999999 : zIndex;
+
+				if(typeof onLoad == "function") onLoad();
 
 				MKY.addStyle(`
 					html {
