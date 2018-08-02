@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.11.2
+// @version 2.11.3
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
@@ -153,7 +153,8 @@
 						{
 							hostname: "gamecode.win",
 							helper: basicHelper,
-							cache: true
+							cache: true,
+							requires: {twitch: true}
 						},
 						{
 							hostname: "gamehag.com",
@@ -280,8 +281,7 @@
 						},
 						{
 							hostname: "whosgamingnow.net",
-							helper:
-							basicHelper,
+							helper: basicHelper,
 							cache: true
 						}
 					];
@@ -1289,8 +1289,7 @@
 				button_count = 1,
 				following_status = {},
 				handled_channels = [],
-				ready_a = false;
-				ready_b = false;
+				ready = false;
 
 			// Get all the user data we'll need to undo twitch entries
 			commandHub.load(
@@ -1298,26 +1297,16 @@
 				command_hub_host,
 				function() {
 					return {
-						user_handle: getCookie("login")
+						user_handle: getCookie("login"),
+						api_token: getCookie("auth-token")
 					};
 				},
 				function(data) {
 					user_handle = data.user_handle;
-					ready_a = true;
+					api_token = data.api_token;
+					ready = true;
 				}
 			);
-
-			MKY.xmlHttpRequest({
-				url: "https://api.twitch.tv/api/viewer/token.json",
-				method: "GET",
-				headers: { "Client-ID": "jzkbprff40iqj646a697cyrvl0zt2m6" },
-				onload: function(response) {
-					api_token = response.responseText.match(/token\":\"(.+?)\"/);
-					api_token = api_token === null ? null : api_token[1];
-
-					ready_b = true;
-				}
-			});
 
 			/**
 			 * Get ready to create an item
@@ -1471,12 +1460,12 @@
 				 *
 				 */
 				handleEntry: function(twitch_handle, button_callback, ready_check, show_name, expected_user) {
-					if(ready_a && ready_b) {
+					if(ready) {
 						prepCreateButton(twitch_handle, button_callback, ready_check, show_name, expected_user);
 					} else {
 						// Wait for the command hub to load
 						var temp_interval = setInterval(function() {
-							if(ready_a && ready_b) {
+							if(ready) {
 								clearInterval(temp_interval);
 								prepCreateButton(twitch_handle, button_callback, ready_check, show_name, expected_user);
 							}
@@ -1506,6 +1495,8 @@
 						if(do_cache) giveawayHelperUI.cacheLinks(channels, cache_id);
 
 						for(var i = 0; i < channels.length; i++) {
+							if(channels[i] == "login") continue;
+
 							if($.inArray(channels[i], handled_channels) == -1) {
 								handled_channels.push(channels[i]);
 								self.handleEntry(channels[i], button_callback, null, show_name);
