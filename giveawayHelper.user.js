@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.11.3
+// @version 2.11.4
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
@@ -22,8 +22,7 @@
 // @match *://*.hrkgame.com/en/giveaway/get-free-game/
 // @match *://*.indiegala.com/*
 // @match *://*.keychampions.net/view.php?gid=*
-// @match *://*.marvelousga.com/giveaway.php*
-// @match *://*.marvelousga.com/raffle.php*
+// @match *://*.marvelousga.com/giveaway/*
 // @match *://*.prys.ga/giveaway/?id=*
 // @match *://*.simplo.gg/index.php?giveaway=*
 // @match *://*.steamfriends.info/free-steam-key/
@@ -253,6 +252,7 @@
 							hostname: "marvelousga.com",
 							helper: basicHelper,
 							cache: false,
+							zIndex: 1,
 							requires: {twitch: true}
 						},
 						{
