@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.11.4
+// @version 2.11.5
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
@@ -20,7 +20,6 @@
 // @match *://*.gleam.io/*
 // @match *://*.grabfreegame.com/giveaway/*
 // @match *://*.hrkgame.com/en/giveaway/get-free-game/
-// @match *://*.indiegala.com/*
 // @match *://*.keychampions.net/view.php?gid=*
 // @match *://*.marvelousga.com/giveaway/*
 // @match *://*.prys.ga/giveaway/?id=*
@@ -233,14 +232,6 @@
 							hostname: "hrkgame.com",
 							helper: basicHelper,
 							cache: false
-						},
-						{
-							hostname: "indiegala.com",
-							helper: basicHelper,
-							domMatch: [".giveaway-header"],
-							urlMatch: [/givmessage/],
-							cache: false,
-							offset: [0, 260, 0]
 						},
 						{
 							hostname: "keychampions.net",
