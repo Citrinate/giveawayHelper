@@ -34,7 +34,6 @@ Additional features may be unlocked by also installing the add-on to this script
     <tr><td>Gleam.io (<a href="https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/images/gleam.png">preview</a>)</td><td align="center">✔</td><td align="center">✔</td></tr>
     <tr><td>GrabFreeGame</td><td align="center">✔</td><td></td></tr>
     <tr><td>HRK</td><td align="center">✔</td><td></td></tr>
-    <tr><td>Indiegala</td><td align="center">✔</td><td></td></tr>
     <tr><td>Key Champions</td><td align="center">✔</td><td></td></tr>
     <tr><td>Marvelousga</td><td align="center">✔</td><td align="center">✔</td></tr>
     <tr><td>Prys.ga</td><td align="center">✔</td><td></td></tr>
