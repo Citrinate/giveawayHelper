@@ -5,8 +5,6 @@ This script enhances a number of Steam Key Giveaway Sites by making certain requ
 
 **Disclaimer: The usage of this script may violate the Terms of Service of the sites it runs on. Use at your own risk.**
 
-Additional features may be unlocked by also installing the add-on to this script: [GiveawayKiller](https://github.com/gekkedev/GiveawayKiller)
-
 ## Supported Sites
 <table>
   <thead>
