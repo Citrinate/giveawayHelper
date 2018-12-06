@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.11.5
+// @version 2.12.0
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
@@ -28,6 +28,7 @@
 // @match *://*.treasuregiveaways.com/*.php*
 // @match *://*.whosgamingnow.net/giveaway/*
 // @connect steamcommunity.com
+// @connect steampowered.com
 // @connect twitter.com
 // @connect twitch.tv
 // @match https://syndication.twitter.com/
@@ -200,6 +201,7 @@
 							hostname: "giveaway.su",
 							helper: basicHelper,
 							cache: true,
+							requires: {steam_curators: true},
 							zIndex: 1,
 							redirect_urls: function() {
 								return $(".fa-steam").closest("tr").find("a[href*='/action/redirect/']");
@@ -574,6 +576,17 @@
 								`twitch_${cache_id}`
 							);
 						}
+
+						if(typeof requires.steam_curators !== "undefined" && requires.steam_curators === true) {
+							// Add Steam Curator buttons
+							SteamCuratorHandler.getInstance().findCurators(
+								giveawayHelperUI.addButton,
+								$("body").html(),
+								true,
+								do_cache,
+								`steam_curators_${cache_id}`
+							);
+						}
 					}
 
 					// Check for redirects
@@ -606,6 +619,17 @@
 											true,
 											do_cache,
 											`twitch_${cache_id}`
+										);
+									}
+
+									if(typeof requires.steam_curators !== "undefined" && requires.steam_curators === true) {
+										// Add Twitch button
+										SteamCuratorHandler.getInstance().findCurators(
+											giveawayHelperUI.addButton,
+											url,
+											true,
+											do_cache,
+											`steam_curators_${cache_id}`
 										);
 									}
 								}
@@ -661,6 +685,28 @@
 				}
 			});
 
+			function verifyLogin(expected_user) {
+				if(typeof expected_user !== "undefined" && !expected_user) {
+					// The user doesn't have a Steam account linked, do nothing
+				} else if(user_id === null || session_id === null || process_url === null) {
+					// We're not logged in
+					giveawayHelperUI.showError(`You must be logged into
+						<a href="https://steamcommunity.com/login" target="_blank">steamcommunity.com</a>`);
+				} else if(typeof expected_user !== "undefined" && expected_user.user_id != user_id) {
+					// We're logged in as the wrong user
+					giveawayHelperUI.showError(`You must be logged into the linked Steam account:
+						<a href="https://steamcommunity.com/profiles/${expected_user.user_id}" target="_blank">
+						https://steamcommunity.com/profiles/${expected_user.user_id}</a>`);
+				} else if(active_groups === null) {
+					// Couldn't get user's group data
+					giveawayHelperUI.showError("Unable to determine what Steam groups you're a member of");
+				} else {
+					return true;
+				}
+
+				return false;
+			}
+
 			/**
 			 *
 			 */
@@ -691,21 +737,7 @@
 			 * Create a join/leave toggle button
 			 */
 			function createButton(group_data, button_callback, show_name, expected_user) {
-				if(typeof expected_user !== "undefined" && !expected_user) {
-					// The user doesn't have a Steam account linked, do nothing
-				} else if(user_id === null || session_id === null || process_url === null) {
-					// We're not logged in
-					giveawayHelperUI.showError(`You must be logged into
-						<a href="https://steamcommunity.com/login" target="_blank">steamcommunity.com</a>`);
-				} else if(typeof expected_user !== "undefined" && expected_user.user_id != user_id) {
-					// We're logged in as the wrong user
-					giveawayHelperUI.showError(`You must be logged into the linked Steam account:
-						<a href="https://steamcommunity.com/profiles/${expected_user.user_id}" target="_blank">
-						https://steamcommunity.com/profiles/${expected_user.user_id}</a>`);
-				} else if(active_groups === null) {
-					// Couldn't get user's group data
-					giveawayHelperUI.showError("Unable to determine what Steam groups you're a member of");
-				} else {
+				if(verifyLogin(expected_user)) {
 					// Create the button
 					var group_name = group_data.group_name,
 						group_id = group_data.group_id,
@@ -730,7 +762,7 @@
 			 */
 			function toggleGroupStatus(button_id, group_name, group_id, show_name) {
 				var steam_community_down_error = `
-					The Steam Community is experiencing issues.  Please handle any remaining Steam entries manually.
+					The Steam Community is experiencing issues.  Please handle any remaining Steam entries manually, or reload the page and try again.
 				`;
 
 				if(active_groups.indexOf(group_name) == -1) {
@@ -912,7 +944,6 @@
 								}
 							}
 
-
 							for(var j = 0; j < group_ids.length; j++) {
 								if($.inArray(group_ids[i], handled_group_ids) == -1) {
 									handled_group_ids.push(group_ids[i]);
@@ -947,6 +978,294 @@
 							);
 						}
 					}
+				}
+			};
+		}
+
+		var instance;
+		return {
+			getInstance: function() {
+				if(!instance) instance = init();
+				return instance;
+			}
+		};
+	})();
+
+
+
+	/**
+	 * Handles Steam curator buttons
+	 */
+	var SteamCuratorHandler = (function() {
+		function init() {
+			var re_curator_id = /steampowered.com\/curator\/([0-9]+)/g,
+				session_id = null,
+				active_curators = [],
+				button_count = 1,
+				handled_curator_ids = [],
+				ready = false;
+				curator_ready_status = 0;
+
+			// Get all the user data we'll need to make follow/unfollow curator requests
+			MKY.xmlHttpRequest({
+				url: "https://store.steampowered.com",
+				method: "GET",
+				onload: function(response) {
+					session_id = response.responseText.match(/g_sessionID = \"(.+?)\";/);
+					session_id = session_id === null ? null : session_id[1];
+
+					MKY.xmlHttpRequest({
+						url: "https://store.steampowered.com/curators/ajaxgetcurators//?query=&start=0&count=1&filter=mycurators",
+						method: "GET",
+						headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+						onload: function(response) {
+							var curator_urls_completed = 1;
+
+							try {
+								var data = JSON.parse(response.responseText);
+
+								if(typeof data.success != "undefined" && typeof data.pagesize != "undefined" && typeof data.total_count != "undefined" && data.success == true) {
+									parseActiveCurators(data);
+
+									for(var i = 1; i < Math.ceil(data.total_count/data.pagesize); i++) {
+										setTimeout(function() {
+											if(ready) return;
+
+											MKY.xmlHttpRequest({
+												url: "https://store.steampowered.com/curators/ajaxgetcurators//?query=&start=" + (i * data.pagesize) + "&count=1000&filter=mycurators",
+												method: "GET",
+												headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+												onload: function(response) {
+													try {
+														var data = JSON.parse(response.responseText);
+
+														if(typeof data.success != "undefined" && data.success == true) {
+															parseActiveCurators(data);
+														} else {
+															ready = true;
+															active_curators = null;
+														}
+
+														curator_urls_completed++;
+													} catch(e) {
+														ready = true;
+														active_curators = null;
+													}
+												}
+											});
+										}, i * 500);
+									}
+
+									var temp_interval = setInterval(function() {
+										if(curator_urls_completed >= Math.ceil(data.total_count/data.pagesize)) {
+											clearInterval(temp_interval);
+											ready = true;
+										}
+									}, 100)
+								}
+							} catch(e) {
+								ready = true;
+								active_curators = null;
+							}
+						}
+					});
+				}
+			});
+
+			function verifyLogin(expected_user) {
+				if(typeof expected_user !== "undefined" && !expected_user) {
+					// The user doesn't have a Steam account linked, do nothing
+				} else if(session_id === null) {
+					// We're not logged in
+					giveawayHelperUI.showError(`You must be logged into
+						<a href="https://steamcommunity.com/login" target="_blank">steamcommunity.com</a>`);
+				}  else if(active_curators === null) {
+					// Couldn't get user's group data
+					giveawayHelperUI.showError("Unable to determine what Steam curators you're following");
+				} else {
+					return true;
+				}
+
+				return false;
+			}
+
+			/**
+			 * 
+			 */
+			function parseActiveCurators(data) {
+				if(typeof data.results_html == "undefined") {
+					curator_ready_status = 2;
+					active_curators = null;
+					return;
+				}
+
+				var re_curator_results_id = /\"clanID\":\"([0-9]+)\"/g;
+
+				while((match = re_curator_results_id.exec(data.results_html)) !== null) {
+					active_curators.push(match[1]);
+				}
+
+				return;
+			}
+
+			/**
+			 * Create a join/leave Curator toggle button
+			 */
+			function createButton(curator_id, button_callback, show_name, expected_user) {
+				if(verifyLogin(expected_user)) {
+					// Create the button
+					var is_following = active_curators.indexOf(curator_id) != -1,
+						button_id = "steam_button_" + button_count++,
+						label = is_following ?
+							`Unfollow ${show_name ? curator_id : "Curator"}`
+							: `Follow ${show_name ? curator_id : "Curator"}`;
+
+					button_callback(
+						giveawayHelperUI.buildButton(button_id, label, is_following, function() {
+							toggleCuratorStatus(button_id, curator_id, show_name);
+							giveawayHelperUI.showButtonLoading(button_id);
+						})
+					);
+				}
+			}
+
+
+			/**
+			 * Toggle steam curator status between "following" and "not following"
+			 */
+			function toggleCuratorStatus(button_id, curator_id, show_name) {
+				var steam_community_down_error = `
+					The Steam Community is experiencing issues.  Please handle any remaining Steam entries manually, or reload the page and try again.
+				`;
+
+				if(active_curators.indexOf(curator_id) == -1) {
+					followCurator(curator_id, function(success) {
+						if(success) {
+							active_curators.push(curator_id);
+							giveawayHelperUI.toggleButtonClass(button_id);
+							giveawayHelperUI.setButtonLabel(button_id, `Unfollow ${show_name ? curator_id : "Curator"}`);
+						} else {
+							giveawayHelperUI.showError(steam_community_down_error);
+						}
+
+						giveawayHelperUI.hideButtonLoading(button_id);
+					});
+				} else {
+					unfollowCurator(curator_id, function(success) {
+						if(success) {
+							active_curators.splice(active_curators.indexOf(curator_id), 1);
+							giveawayHelperUI.toggleButtonClass(button_id);
+							giveawayHelperUI.setButtonLabel(button_id, `Follow ${show_name ? curator_id : "Curator"}`);
+						} else {
+							giveawayHelperUI.showError(steam_community_down_error);
+						}
+
+						giveawayHelperUI.hideButtonLoading(button_id);
+					});
+				}
+			}
+
+			/**
+			 * Follow a steam curator
+			 */
+			function followCurator(curator_id, callback) {
+				MKY.xmlHttpRequest({
+					url: "https://store.steampowered.com/curators/ajaxfollow",
+					method: "POST",
+					data: $.param({ clanid: curator_id, sessionid: session_id, follow: "1" }),
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+					onload: function(response) {
+						try {
+							var data = JSON.parse(response.responseText);
+
+							if(typeof data.success != "undefined" && data.success == 1) {
+								callback(true);
+							} else {
+								callback(false);
+							}
+						} catch(e) {
+							callback(false)
+						}
+					}
+				});
+			}
+
+			/**
+			 * Unfollow a steam curator
+			 */
+			function unfollowCurator(curator_id, callback) {
+				MKY.xmlHttpRequest({
+					url: "https://store.steampowered.com/curators/ajaxfollow",
+					method: "POST",
+					data: $.param({ clanid: curator_id, sessionid: session_id, follow: "0" }),
+					headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
+					onload: function(response) {
+						try {
+							var data = JSON.parse(response.responseText);
+
+							if(typeof data.success != "undefined" && data.success == 1) {
+								callback(true);
+							} else {
+								callback(false);
+							}
+						} catch(e) {
+							callback(false)
+						}
+					}
+				});
+			}
+
+			return {
+				/**
+				 *
+				 */
+				handleEntry: function(curator_id, button_callback, show_name, expected_user) {
+					if(ready) {
+						createButton(curator_id, button_callback, show_name, expected_user);
+					} else {
+						// Wait for the command hub to load
+						var temp_interval = setInterval(function() {
+							if(ready) {
+								clearInterval(temp_interval);
+								createButton(curator_id, button_callback, show_name, expected_user);
+							}
+						}, 100);
+					}
+				},
+
+				/**
+				 *
+				 */
+				findCurators: function(button_callback, target, show_name, do_cache, cache_id) {
+					var self = this;
+
+					giveawayHelperUI.restoreCachedLinks(cache_id).then(function(curator_ids) {
+						var match;
+
+						if(!do_cache) {
+							curator_ids = [];
+						}
+
+						// Look for any links containing steam curator ids
+						while((match = re_curator_id.exec(target)) !== null) {
+							curator_ids.push(match[1].toLowerCase());
+						}
+
+						curator_ids = giveawayHelperUI.removeDuplicates(curator_ids);
+
+						// Cache the results
+						if(do_cache) {
+							giveawayHelperUI.cacheLinks(curator_ids, cache_id);
+						}
+
+						// Create the buttons
+						for(var i = 0; i < curator_ids.length; i++) {
+							if($.inArray(curator_ids[i], handled_curator_ids) == -1) {
+								handled_curator_ids.push(curator_ids[i]);
+								self.handleEntry(curator_ids[i], button_callback, show_name);
+							}
+						}
+					});
 				}
 			};
 		}
@@ -1905,7 +2224,7 @@
 			 */
 			resolveUrl: function(url, callback) {
 				var self = this,
-					cached_url_id = `cache_${CryptoJS.MD5(url)}`;
+					cached_url_id = `cache_${MKY.info.script.version.replace(/\./g,"_")}_${CryptoJS.MD5(url)}`;
 
 				self.restoreCachedLinks(cached_url_id).then(function(value){
 					if(value.length !== 0) {
