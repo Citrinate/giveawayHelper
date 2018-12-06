@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.12.0
+// @version 2.12.1
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
@@ -623,7 +623,7 @@
 									}
 
 									if(typeof requires.steam_curators !== "undefined" && requires.steam_curators === true) {
-										// Add Twitch button
+										// Steam Curator buttons
 										SteamCuratorHandler.getInstance().findCurators(
 											giveawayHelperUI.addButton,
 											url,
@@ -1115,7 +1115,7 @@
 				if(verifyLogin(expected_user)) {
 					// Create the button
 					var is_following = active_curators.indexOf(curator_id) != -1,
-						button_id = "steam_button_" + button_count++,
+						button_id = "steam_curator_button_" + button_count++,
 						label = is_following ?
 							`Unfollow ${show_name ? curator_id : "Curator"}`
 							: `Follow ${show_name ? curator_id : "Curator"}`;
