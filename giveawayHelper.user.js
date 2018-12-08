@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.12.1
+// @version 2.12.2
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
@@ -1015,7 +1015,7 @@
 					session_id = session_id === null ? null : session_id[1];
 
 					MKY.xmlHttpRequest({
-						url: "https://store.steampowered.com/curators/ajaxgetcurators//?query=&start=0&count=1&filter=mycurators",
+						url: "https://store.steampowered.com/curators/ajaxgetcurators//?query=&start=0&count=1000&filter=mycurators",
 						method: "GET",
 						headers: { 'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8' },
 						onload: function(response) {
