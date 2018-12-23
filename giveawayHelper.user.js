@@ -7,7 +7,7 @@
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
-// @match *://*.dupedornot.com/giveaway.php*
+// @match *://*.dupedornot.com/giveaway/*
 // @match *://*.embloo.net/task/*
 // @match *://*.gamecode.win/giveaway/*
 // @match *://*.gamehag.com/giveaway/*
