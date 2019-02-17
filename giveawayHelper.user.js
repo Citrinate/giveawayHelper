@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.12.4
+// @version 2.12.5
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
@@ -472,8 +472,8 @@
 				addButton(entry_element),
 				isCompleted(entry),
 				false,
-				authentications.twitchtv === false ? false : {
-					user_handle: authentications.twitchtv.reference
+				authentications.twitch === false ? false : {
+					user_handle: authentications.twitch.reference
 				}
 			);
 		}
@@ -1090,7 +1090,7 @@
 			}
 
 			/**
-			 * 
+			 *
 			 */
 			function parseActiveCurators(data) {
 				if(typeof data.results_html == "undefined") {
