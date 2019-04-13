@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.12.5
+// @version 2.12.6
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
@@ -345,7 +345,7 @@
 
 				for(var i = 0; i < authentication_data.length; i++) {
 					var current_authentication = authentication_data[i];
-					authentications[current_authentication.provider] = current_authentication;
+					authentications[current_authentication.provider == "twitchtv" ? "twitch" : current_authentication.provider] = current_authentication;
 				}
 			}
 		}
