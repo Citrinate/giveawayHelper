@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.12.6
+// @version 2.12.7
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
@@ -1178,7 +1178,7 @@
 						try {
 							var data = JSON.parse(response.responseText);
 
-							if(typeof data.success != "undefined" && data.success == 1) {
+							if(typeof data.success.success != "undefined" && data.success.success == 1) {
 								callback(true);
 							} else {
 								callback(false);
@@ -1203,7 +1203,7 @@
 						try {
 							var data = JSON.parse(response.responseText);
 
-							if(typeof data.success != "undefined" && data.success == 1) {
+							if(typeof data.success.success != "undefined" && data.success.success == 1) {
 								callback(true);
 							} else {
 								callback(false);
