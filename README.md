@@ -27,7 +27,6 @@ This script enhances a number of Steam Key Giveaway Sites by making certain requ
     <tr><td>Gamehag</td><td align="center">✔</td><td></td></tr>
     <tr><td>Gamezito</td><td align="center">✔</td><td></td></tr>
     <tr><td>GetKeys</td><td align="center">✔</td><td align="center">✔</td></tr>
-    <tr><td>GiveAway.su</td><td align="center">✔</td><td></td></tr>
     <tr><td>Giveawayhopper</td><td align="center">✔</td><td></td></tr>
     <tr><td>Gleam.io (<a href="https://raw.githubusercontent.com/Citrinate/giveawayHelper/master/images/gleam.png">preview</a>)</td><td align="center">✔</td><td align="center">✔</td></tr>
     <tr><td>GrabFreeGame</td><td align="center">✔</td><td></td></tr>

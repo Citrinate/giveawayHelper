@@ -3,7 +3,7 @@
 // @namespace https://github.com/Citrinate/giveawayHelper
 // @description Enhances Steam key-related giveaways
 // @author Citrinate
-// @version 2.12.7
+// @version 2.12.8
 // @match *://*.chubbykeys.com/giveaway.php*
 // @match *://*.bananagiveaway.com/giveaway/*
 // @match *://*.dogebundle.com/index.php?page=redeem&id=*
@@ -15,7 +15,6 @@
 // @match *://*.getkeys.net/giveaway.php*
 // @match *://*.ghame.ru/*
 // @match *://*.giftybundle.com/giveaway.php*
-// @match *://*.giveaway.su/giveaway/view/*
 // @match *://*.giveawayhopper.com/giveaway*
 // @match *://*.gleam.io/*
 // @match *://*.grabfreegame.com/giveaway/*
@@ -196,16 +195,6 @@
 							hostname: "giftybundle.com",
 							helper: basicHelper,
 							cache: false
-						},
-						{
-							hostname: "giveaway.su",
-							helper: basicHelper,
-							cache: true,
-							requires: {steam_curators: true},
-							zIndex: 1,
-							redirect_urls: function() {
-								return $(".fa-steam").closest("tr").find("a[href*='/action/redirect/']");
-							}
 						},
 						{
 							hostname: "giveawayhopper.com",
