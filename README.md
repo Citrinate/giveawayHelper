@@ -1,4 +1,4 @@
-# Giveaway Helper
+# This script is no longer being maintained
 This script enhances a number of Steam Key Giveaway Sites by making certain requirements easier to complete and undo.
 
 *README Translations: [Беларуская](https://github.com/Citrinate/giveawayHelper/blob/master/README.by.md), [Русский](https://github.com/Citrinate/giveawayHelper/blob/master/README.ru.md), [Українська](https://github.com/Citrinate/giveawayHelper/blob/master/README.ua.md)*
